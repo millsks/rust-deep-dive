@@ -2896,7 +2896,103 @@ fn main() -> io::Result<()> {
 
 ---
 
-## Section 10: Modules, Crates & Workspaces
+
+## Section 10: Command Line Arguments (CLI)
+
+### The Philosophy of CLI Design
+A professional command-line tool is more than just a script; it is a user interface. In the world of systems programming, the CLI is the primary way automation, cloud infrastructure, and other developers interact with your software. 
+
+A well-designed CLI follows the "Rule of Least Surprise." This means using standard conventions for flags (`--verbose`), options (`--output <file>`), and subcommands (`git push`). In Rust, we move from the low-level `std::env::args` to the high-level `clap` (Command Line Argument Parser) to handle these conventions automatically.
+
+### Positional vs. Keyword Arguments
+Understanding the difference between these two is fundamental to CLI design:
+
+1.  **Positional Arguments**: These are arguments identified by their position in the command. For example, in `cp file1.txt file2.txt`, both are positional. They are usually mandatory and represent the "target" of the action.
+2.  **Keyword Arguments (Options/Flags)**: These are identified by a name (e.g., `--limit 50` or `-v`). They can usually appear in any order and are often optional, providing configuration for "how" the program should run.
+
+### Mixed Arguments: Positionals with Keywords
+Often, a command might have a positional argument that *takes* its own keyword arguments. In modern CLI design, this is usually handled via **Subcommands**. For example, in `docker run --name my-container ubuntu:latest`, `run` is a subcommand, `--name` is a keyword argument belonging to that subcommand, and `ubuntu:latest` is a positional argument.
+
+### The Modern Way: Clap (Command Line Argument Parser)
+In Rust, `clap` is the undisputed king of CLI parsing. It uses Rust's powerful derive macro system to turn a simple `struct` into a robust parser.
+
+```rust
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "DataTool", version = "1.0", about = "Processes data files")]
+struct Cli {
+    /// The positional input file (Mandatory)
+    input: String,
+
+    /// An optional keyword argument for the output path
+    #[arg(short, long, value_name = "FILE")]
+    output: Option<String>,
+
+    /// A flag argument that turns on verbose mode
+    #[arg(short, long, default_value_t = false)]
+    verbose: bool,
+
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Perform a specific check on the data
+    Check {
+        /// A keyword argument specific to this subcommand
+        #[arg(long)]
+        strict: bool,
+    },
+}
+
+fn main() {
+    let cli = Cli::parse();
+
+    if cli.verbose {
+        println!("Verbosity enabled. Processing {}", cli.input);
+    }
+
+    // Logic to handle keywords and positionals...
+}
+```
+
+---
+
+## Section 11: Terminal User Interfaces (TUI)
+
+### Moving Beyond Scrolling Text
+While a standard CLI prints text line-by-line, a **Terminal User Interface (TUI)** uses the terminal as a visual grid. Think of tools like `htop`, `vim`, or `lazygit`. These applications allow for layouts, colors, responsive design, and keyboard interactions.
+
+In Rust, the primary ecosystem for this is **Ratatui** (built on top of the **Crossterm** backend). Ratatui follows an "Immediate Mode" rendering pattern: every time the screen needs to update, you describe the *entire* UI from scratch based on your current application state.
+
+### The Virtual Grid and Layouts
+To build a TUI, you divide your terminal window into rectangular areas. Ratatui uses a `Layout` system where you define constraints (e.g., "Give the top section 3 lines, and let the bottom section take the rest").
+
+- **Constraints**: You can use `Percentage(x)`, `Length(y)`, `Min(z)`, and `Max(w)`.
+- **Rects**: These represent the physical boundaries of your widgets.
+
+### Colors and Styles
+Colors in the terminal have evolved from the basic 8 colors to a full 24-bit "True Color" gamut. Modern crates allow you to apply styles like `Bold`, `Italic`, `Underline`, and custom HEX colors to any piece of text.
+
+### The Event Loop
+A TUI application doesn't exit after printing. It runs in a loop, waiting for user input:
+1.  **Poll for events**: Keyboard press? Mouse click? Window resize?
+2.  **Update State**: If 'Up Arrow' was pressed, move the selected index in a list.
+3.  **Draw**: Render the widgets based on the new state.
+
+### Mini-Project 11: "SysWatch" Performance Dashboard
+**Goal**: Build a simple TUI dashboard that shows a simulated system status.
+
+**Key Requirements**:
+- Use a `Block` with a `Border` and a `Title`.
+- Implement a `Gauge` widget to show a "CPU Load" percentage.
+- Change the gauge color based on the value (Green < 50%, Yellow < 80%, Red > 80%).
+- Ensure the program exits gracefully when the user presses 'q'.
+
+---
+## Section 12: Modules, Crates & Workspaces
 
 ### The Module System: Organizing Code
 
@@ -3131,7 +3227,7 @@ pub fn std_dev(data: &[f64]) -> Option<f64> {
 
 ---
 
-## Section 11: Testing, Linting & Formatting
+## Section 13: Testing, Linting & Formatting
 
 ### The Philosophy of Testing in Rust
 
@@ -3710,7 +3806,7 @@ mod tests {
 
 ---
 
-## Section 12: Concurrency & Async Rust
+## Section 14: Concurrency & Async Rust
 
 ### Why Concurrency Is Hard (And How Rust Helps)
 
@@ -3966,7 +4062,7 @@ async fn main() {
 
 ---
 
-## Section 13: Macros
+## Section 15: Macros
 
 ### What Are Macros and Why Do They Exist?
 
@@ -4140,7 +4236,7 @@ fn main() {
 
 ---
 
-## Section 14: Unsafe Rust & FFI
+## Section 16: Unsafe Rust & FFI
 
 ### When and Why to Use Unsafe
 
@@ -4277,7 +4373,7 @@ fn main() {
 
 ---
 
-## Section 15: Design Patterns in Rust
+## Section 17: Design Patterns in Rust
 
 ### Why Design Patterns Look Different in Rust
 
@@ -4531,7 +4627,7 @@ fn main() {
 
 ---
 
-## Section 16: Performance & Profiling
+## Section 18: Performance & Profiling
 
 ### Rust's Performance Philosophy
 
@@ -4687,7 +4783,7 @@ fn main() {
 
 ---
 
-## Section 17: Networking & Web
+## Section 19: Networking & Web
 
 ### TCP and UDP with std::net
 
@@ -4925,7 +5021,7 @@ async fn auth_middleware(
 
 ---
 
-## Section 18: Serde Deep Dive
+## Section 20: Serde Deep Dive
 
 ### What Is Serde?
 
