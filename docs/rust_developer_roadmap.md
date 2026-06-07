@@ -5,21 +5,22 @@
 
 ## Table of Contents
 
-1. [Section 1: Getting Started with Rust](#section-1)
-2. [Section 2: Ownership, Borrowing & Lifetimes](#section-2)
-3. [Section 3: Structs, Enums & Pattern Matching](#section-3)
-4. [Section 4: Error Handling](#section-4)
-5. [Section 5: Collections & Iterators](#section-5)
-6. [Section 6: Traits & Generics](#section-6)
-7. [Section 7: Closures & Functional Programming](#section-7)
-8. [Section 8: Modules, Crates & Cargo](#section-8)
-9. [Section 9: Concurrency & Async Programming](#section-9)
-10. [Section 10: Advanced Rust — Macros, Unsafe & FFI](#section-10)
-11. [Capstone Project: Real-World CLI Task Manager](#capstone)
+1. [Section 1: Getting Started with Rust](#section-1-getting-started-with-rust)
+2. [Section 2: Ownership, Borrowing & Lifetimes](#section-2-ownership-borrowing--lifetimes)
+3. [Section 3: Structs, Enums & Pattern Matching](#section-3-structs-enums--pattern-matching)
+4. [Section 4: Error Handling](#section-4-error-handling)
+5. [Section 5: Collections & Iterators](#section-5-collections--iterators)
+6. [Section 6: Traits & Generics](#section-6-traits--generics)
+7. [Section 7: Closures & Functional Programming](#section-7-closures--functional-programming)
+8. [Section 8: Modules, Crates & Cargo](#section-8-modules-crates--cargo)
+9. [Section 9: Working with Files](#section-9-working-with-files)
+10. [Section 10: Concurrency & Async Programming](#section-10-concurrency--async-programming)
+11. [Section 11: Advanced Rust — Macros, Unsafe & FFI](#section-11-advanced-rust--macros-unsafe--ffi)
+12. [Capstone Project: Real-World CLI Task Manager](#capstone-project-real-world-cli-task-manager)
 
 ---
 
-## Section 1: Getting Started with Rust {#section-1}
+## Section 1: Getting Started with Rust
 
 ### 1.1 What is Rust?
 
@@ -129,7 +130,7 @@ fn main() {
     let result = loop {
         count += 1;
         if count == 5 {
-            break count * 2; // loops can return values
+            break count * 2;
         }
     };
     println!("Loop result: {}", result);
@@ -189,17 +190,9 @@ Build a command-line temperature converter that converts between Celsius, Fahren
 ```rust
 use std::io;
 
-fn celsius_to_fahrenheit(c: f64) -> f64 {
-    c * 9.0 / 5.0 + 32.0
-}
-
-fn celsius_to_kelvin(c: f64) -> f64 {
-    c + 273.15
-}
-
-fn fahrenheit_to_celsius(f: f64) -> f64 {
-    (f - 32.0) * 5.0 / 9.0
-}
+fn celsius_to_fahrenheit(c: f64) -> f64 { c * 9.0 / 5.0 + 32.0 }
+fn celsius_to_kelvin(c: f64) -> f64 { c + 273.15 }
+fn fahrenheit_to_celsius(f: f64) -> f64 { (f - 32.0) * 5.0 / 9.0 }
 
 fn main() {
     println!("=== Temperature Converter ===");
@@ -216,21 +209,14 @@ fn main() {
 
     let value: f64 = match parts[0].parse() {
         Ok(v) => v,
-        Err(_) => {
-            println!("Invalid number.");
-            return;
-        }
+        Err(_) => { println!("Invalid number."); return; }
     };
 
-    let unit = parts[1].to_uppercase();
-    let celsius = match unit.as_str() {
+    let celsius = match parts[1].to_uppercase().as_str() {
         "C" => value,
         "F" => fahrenheit_to_celsius(value),
         "K" => value - 273.15,
-        _ => {
-            println!("Unknown unit. Use C, F, or K.");
-            return;
-        }
+        _ => { println!("Unknown unit. Use C, F, or K."); return; }
     };
 
     println!("\nResults:");
@@ -246,7 +232,7 @@ fn main() {
 
 ---
 
-## Section 2: Ownership, Borrowing & Lifetimes {#section-2}
+## Section 2: Ownership, Borrowing & Lifetimes
 
 ### 2.1 The Ownership Model
 
@@ -268,7 +254,7 @@ fn main() {
 
     // Clone to make a deep copy
     let s3 = s2.clone();
-    println!("s2 = {}, s3 = {}", s2, s3); // Both valid
+    println!("s2 = {}, s3 = {}", s2, s3);
 }
 ```
 
@@ -280,13 +266,13 @@ Instead of transferring ownership, you can **borrow** a value using references (
 
 ```rust
 fn calculate_length(s: &String) -> usize {
-    s.len() // We borrow s, we don't own it
+    s.len()
 }
 
 fn main() {
     let s = String::from("hello world");
-    let len = calculate_length(&s); // Pass a reference
-    println!("The length of '{}' is {}.", s, len); // s is still valid!
+    let len = calculate_length(&s);
+    println!("The length of '{}' is {}.", s, len);
 }
 ```
 
@@ -301,19 +287,12 @@ fn main() {
     let mut s = String::from("hello");
     append_world(&mut s);
     println!("{}", s); // "hello, world"
-
-    // RULE: Only ONE mutable reference at a time
-    let r1 = &mut s;
-    // let r2 = &mut s; // ERROR: cannot borrow `s` as mutable more than once
-    println!("{}", r1);
 }
 ```
 
 ---
 
 ### 2.3 The Slice Type
-
-Slices let you reference a contiguous sequence of elements without owning them.
 
 ```rust
 fn first_word(s: &str) -> &str {
@@ -331,9 +310,8 @@ fn main() {
     let word = first_word(&sentence);
     println!("First word: {}", word);
 
-    // Array slices
     let a = [1, 2, 3, 4, 5];
-    let slice = &a[1..3]; // [2, 3]
+    let slice = &a[1..3];
     println!("{:?}", slice);
 }
 ```
@@ -342,31 +320,22 @@ fn main() {
 
 ### 2.4 Lifetimes
 
-Lifetimes ensure that references are always valid. The compiler uses lifetime annotations to track how long references live.
-
 ```rust
-// The lifetime 'a means: the returned reference lives as long
-// as the shorter of x or y
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     if x.len() > y.len() { x } else { y }
 }
 
 fn main() {
     let s1 = String::from("long string");
-    let result;
-    {
-        let s2 = String::from("xyz");
-        result = longest(s1.as_str(), s2.as_str());
-        println!("Longest: {}", result);
-    }
+    let s2 = String::from("xyz");
+    let result = longest(s1.as_str(), s2.as_str());
+    println!("Longest: {}", result);
 }
 ```
 
 ---
 
 ### 🛠️ Mini Project 2: Word Frequency Counter
-
-Build a program that reads a string and counts the frequency of each word.
 
 ```rust
 use std::collections::HashMap;
@@ -396,16 +365,14 @@ fn main() {
 
 **Challenge Extensions:**
 - Read text from a file using `std::fs::read_to_string`
-- Ignore punctuation and case (normalize to lowercase)
+- Ignore punctuation and normalize to lowercase
 - Show only the top N most frequent words
 
 ---
 
-## Section 3: Structs, Enums & Pattern Matching {#section-3}
+## Section 3: Structs, Enums & Pattern Matching
 
 ### 3.1 Structs
-
-Structs let you group related data together.
 
 ```rust
 #[derive(Debug)]
@@ -415,23 +382,13 @@ struct Rectangle {
 }
 
 impl Rectangle {
-    // Associated function (constructor)
     fn new(width: f64, height: f64) -> Self {
         Rectangle { width, height }
     }
 
-    // Method
-    fn area(&self) -> f64 {
-        self.width * self.height
-    }
-
-    fn perimeter(&self) -> f64 {
-        2.0 * (self.width + self.height)
-    }
-
-    fn is_square(&self) -> bool {
-        self.width == self.height
-    }
+    fn area(&self) -> f64 { self.width * self.height }
+    fn perimeter(&self) -> f64 { 2.0 * (self.width + self.height) }
+    fn is_square(&self) -> bool { self.width == self.height }
 }
 
 fn main() {
@@ -447,14 +404,12 @@ fn main() {
 
 ### 3.2 Enums
 
-Enums allow you to define a type that can be one of several variants — and each variant can hold different data.
-
 ```rust
 #[derive(Debug)]
 enum Shape {
-    Circle(f64),              // radius
-    Rectangle(f64, f64),     // width, height
-    Triangle(f64, f64, f64), // three sides
+    Circle(f64),
+    Rectangle(f64, f64),
+    Triangle(f64, f64, f64),
 }
 
 impl Shape {
@@ -463,7 +418,6 @@ impl Shape {
             Shape::Circle(r) => std::f64::consts::PI * r * r,
             Shape::Rectangle(w, h) => w * h,
             Shape::Triangle(a, b, c) => {
-                // Heron's formula
                 let s = (a + b + c) / 2.0;
                 (s * (s - a) * (s - b) * (s - c)).sqrt()
             }
@@ -486,17 +440,11 @@ fn main() {
 
 ---
 
-### 3.3 Option and Result Enums
-
-Rust has no `null`. Instead, it uses `Option<T>` to represent a value that may or may not exist.
+### 3.3 Option and Pattern Matching
 
 ```rust
 fn divide(a: f64, b: f64) -> Option<f64> {
-    if b == 0.0 {
-        None
-    } else {
-        Some(a / b)
-    }
+    if b == 0.0 { None } else { Some(a / b) }
 }
 
 fn main() {
@@ -505,47 +453,23 @@ fn main() {
         None => println!("Cannot divide by zero"),
     }
 
-    // Shorthand methods
     let result = divide(10.0, 0.0).unwrap_or(f64::INFINITY);
     println!("Result: {}", result);
 
-    // if let — cleaner for single-variant matching
     if let Some(val) = divide(9.0, 3.0) {
         println!("9 / 3 = {}", val);
     }
-}
-```
 
----
-
-### 3.4 Pattern Matching
-
-`match` is Rust's powerful control flow construct that must be exhaustive.
-
-```rust
-fn describe_number(n: i32) -> &'static str {
-    match n {
+    // Exhaustive match with ranges
+    let n = 42i32;
+    let desc = match n {
         i32::MIN..=-1 => "negative",
         0 => "zero",
         1..=9 => "single digit",
         10..=99 => "double digit",
-        _ => "large number",
-    }
-}
-
-fn main() {
-    for n in [-5, 0, 7, 42, 1000] {
-        println!("{}: {}", n, describe_number(n));
-    }
-
-    // Destructuring in match
-    let point = (3, -2);
-    match point {
-        (0, 0) => println!("Origin"),
-        (x, 0) => println!("On x-axis at {}", x),
-        (0, y) => println!("On y-axis at {}", y),
-        (x, y) => println!("Point at ({}, {})", x, y),
-    }
+        _ => "large",
+    };
+    println!("{} is {}", n, desc);
 }
 ```
 
@@ -562,23 +486,21 @@ Build a shape calculator that uses enums and pattern matching to compute area an
 - Display results in a formatted table
 
 **Challenge Extensions:**
-- Add a `describe()` method that returns a human-readable description
+- Add a `describe()` method returning a human-readable description
 - Sort a list of shapes by area
-- Implement `Display` trait for pretty printing
+- Implement the `Display` trait for pretty printing
 
 ---
 
-## Section 4: Error Handling {#section-4}
+## Section 4: Error Handling
 
 ### 4.1 The Result Type
-
-`Result<T, E>` is used for operations that can fail. It's either `Ok(T)` or `Err(E)`.
 
 ```rust
 use std::num::ParseIntError;
 
 fn parse_and_double(s: &str) -> Result<i32, ParseIntError> {
-    let n = s.trim().parse::<i32>()?; // ? operator propagates errors
+    let n = s.trim().parse::<i32>()?;
     Ok(n * 2)
 }
 
@@ -598,8 +520,6 @@ fn main() {
 ---
 
 ### 4.2 The ? Operator
-
-The `?` operator is syntactic sugar for propagating errors up the call stack.
 
 ```rust
 use std::fs;
@@ -643,11 +563,7 @@ impl fmt::Display for AppError {
 }
 
 fn safe_sqrt(n: f64) -> Result<f64, AppError> {
-    if n < 0.0 {
-        Err(AppError::NegativeInput(n))
-    } else {
-        Ok(n.sqrt())
-    }
+    if n < 0.0 { Err(AppError::NegativeInput(n)) } else { Ok(n.sqrt()) }
 }
 
 fn main() {
@@ -679,7 +595,7 @@ Build a simple CSV parser that reads a file, parses rows, and handles errors gra
 
 ---
 
-## Section 5: Collections & Iterators {#section-5}
+## Section 5: Collections & Iterators
 
 ### 5.1 Vectors
 
@@ -690,19 +606,15 @@ fn main() {
     v.push(2);
     v.push(3);
 
-    // Macro shorthand
     let v2 = vec![10, 20, 30, 40, 50];
 
-    // Indexing (panics if out of bounds)
     println!("Third element: {}", v2[2]);
 
-    // Safe access
     match v2.get(10) {
         Some(val) => println!("Got: {}", val),
         None => println!("Index out of bounds"),
     }
 
-    // Iterating
     for val in &v2 {
         print!("{} ", val);
     }
@@ -719,20 +631,15 @@ use std::collections::HashMap;
 
 fn main() {
     let mut scores: HashMap<String, i32> = HashMap::new();
-
     scores.insert(String::from("Alice"), 95);
     scores.insert(String::from("Bob"), 87);
-    scores.insert(String::from("Charlie"), 92);
 
-    // Access
     if let Some(score) = scores.get("Alice") {
         println!("Alice's score: {}", score);
     }
 
-    // Entry API — insert only if not present
     scores.entry(String::from("Dave")).or_insert(80);
 
-    // Iterate
     let mut pairs: Vec<_> = scores.iter().collect();
     pairs.sort_by_key(|&(k, _)| k);
     for (name, score) in pairs {
@@ -743,36 +650,26 @@ fn main() {
 
 ---
 
-### 5.3 Iterators & Iterator Adapters
-
-Iterators are lazy — they do nothing until consumed.
+### 5.3 Iterators & Adapters
 
 ```rust
 fn main() {
     let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-    // map, filter, collect
     let even_squares: Vec<i32> = numbers.iter()
         .filter(|&&x| x % 2 == 0)
         .map(|&x| x * x)
         .collect();
     println!("Even squares: {:?}", even_squares);
 
-    // fold (reduce)
-    let sum: i32 = numbers.iter().fold(0, |acc, &x| acc + x);
+    let sum: i32 = numbers.iter().sum();
     println!("Sum: {}", sum);
 
-    // sum, product, min, max
-    let product: i32 = numbers.iter().product();
-    println!("Product: {}", product);
-
-    // chain, zip, enumerate
     let a = vec![1, 2, 3];
     let b = vec!['a', 'b', 'c'];
     let zipped: Vec<_> = a.iter().zip(b.iter()).collect();
     println!("Zipped: {:?}", zipped);
 
-    // flat_map
     let words = vec!["hello world", "foo bar"];
     let all_words: Vec<&str> = words.iter()
         .flat_map(|s| s.split_whitespace())
@@ -785,42 +682,30 @@ fn main() {
 
 ### 🛠️ Mini Project 5: Student Grade Analyzer
 
-Build a grade analyzer that reads student scores and produces statistics.
-
 ```rust
-use std::collections::HashMap;
-
-struct Student {
-    name: String,
-    scores: Vec<f64>,
-}
+struct Student { name: String, scores: Vec<f64> }
 
 impl Student {
     fn average(&self) -> f64 {
         self.scores.iter().sum::<f64>() / self.scores.len() as f64
     }
-
     fn grade(&self) -> char {
         match self.average() as u32 {
-            90..=100 => 'A',
-            80..=89 => 'B',
-            70..=79 => 'C',
-            60..=69 => 'D',
-            _ => 'F',
+            90..=100 => 'A', 80..=89 => 'B',
+            70..=79 => 'C', 60..=69 => 'D', _ => 'F'
         }
     }
 }
 
 fn main() {
     let students = vec![
-        Student { name: "Alice".into(), scores: vec![92.0, 88.0, 95.0, 91.0] },
-        Student { name: "Bob".into(), scores: vec![75.0, 82.0, 79.0, 85.0] },
-        Student { name: "Charlie".into(), scores: vec![60.0, 55.0, 70.0, 65.0] },
+        Student { name: "Alice".into(), scores: vec![92.0, 88.0, 95.0] },
+        Student { name: "Bob".into(),   scores: vec![75.0, 82.0, 79.0] },
+        Student { name: "Charlie".into(), scores: vec![60.0, 55.0, 70.0] },
     ];
 
     println!("{:<10} {:>8} {:>6}", "Name", "Average", "Grade");
     println!("{}", "-".repeat(28));
-
     for s in &students {
         println!("{:<10} {:>8.2} {:>6}", s.name, s.average(), s.grade());
     }
@@ -828,52 +713,34 @@ fn main() {
     let class_avg: f64 = students.iter().map(|s| s.average()).sum::<f64>()
         / students.len() as f64;
     println!("\nClass Average: {:.2}", class_avg);
-
-    let top = students.iter().max_by(|a, b|
-        a.average().partial_cmp(&b.average()).unwrap()
-    ).unwrap();
-    println!("Top Student: {} ({:.2})", top.name, top.average());
 }
 ```
 
 ---
 
-## Section 6: Traits & Generics {#section-6}
+## Section 6: Traits & Generics
 
 ### 6.1 Traits
-
-Traits define shared behavior — similar to interfaces in other languages.
 
 ```rust
 trait Describable {
     fn describe(&self) -> String;
-    fn short_name(&self) -> &str; // required
-    fn label(&self) -> String {   // default implementation
-        format!("[{}]", self.short_name())
-    }
+    fn short_name(&self) -> &str;
+    fn label(&self) -> String { format!("[{}]", self.short_name()) }
 }
 
-struct Dog {
-    name: String,
-    breed: String,
-}
-
-struct Cat {
-    name: String,
-    indoor: bool,
-}
+struct Dog { name: String, breed: String }
+struct Cat { name: String, indoor: bool }
 
 impl Describable for Dog {
-    fn describe(&self) -> String {
-        format!("{} is a {} dog", self.name, self.breed)
-    }
+    fn describe(&self) -> String { format!("{} is a {} dog", self.name, self.breed) }
     fn short_name(&self) -> &str { &self.name }
 }
 
 impl Describable for Cat {
     fn describe(&self) -> String {
-        let location = if self.indoor { "indoor" } else { "outdoor" };
-        format!("{} is an {} cat", self.name, location)
+        let loc = if self.indoor { "indoor" } else { "outdoor" };
+        format!("{} is an {} cat", self.name, loc)
     }
     fn short_name(&self) -> &str { &self.name }
 }
@@ -885,7 +752,6 @@ fn print_description(item: &impl Describable) {
 fn main() {
     let dog = Dog { name: "Rex".into(), breed: "Labrador".into() };
     let cat = Cat { name: "Whiskers".into(), indoor: true };
-
     print_description(&dog);
     print_description(&cat);
 }
@@ -895,32 +761,13 @@ fn main() {
 
 ### 6.2 Generics
 
-Generics allow you to write code that works with multiple types.
-
 ```rust
 fn largest<T: PartialOrd>(list: &[T]) -> &T {
     let mut largest = &list[0];
     for item in list {
-        if item > largest {
-            largest = item;
-        }
+        if item > largest { largest = item; }
     }
     largest
-}
-
-struct Pair<T> {
-    first: T,
-    second: T,
-}
-
-impl<T: std::fmt::Display + PartialOrd> Pair<T> {
-    fn new(first: T, second: T) -> Self {
-        Pair { first, second }
-    }
-
-    fn larger(&self) -> &T {
-        if self.first > self.second { &self.first } else { &self.second }
-    }
 }
 
 fn main() {
@@ -929,9 +776,6 @@ fn main() {
 
     let chars = vec!['y', 'm', 'a', 'q'];
     println!("Largest char: {}", largest(&chars));
-
-    let pair = Pair::new(5, 10);
-    println!("Larger: {}", pair.larger());
 }
 ```
 
@@ -945,22 +789,15 @@ trait Animal {
     fn name(&self) -> &str;
 }
 
-struct Dog;
-struct Cat;
-struct Cow;
-
+struct Dog; struct Cat; struct Cow;
 impl Animal for Dog { fn sound(&self) -> &str { "Woof" } fn name(&self) -> &str { "Dog" } }
 impl Animal for Cat { fn sound(&self) -> &str { "Meow" } fn name(&self) -> &str { "Cat" } }
 impl Animal for Cow { fn sound(&self) -> &str { "Moo"  } fn name(&self) -> &str { "Cow" } }
 
 fn main() {
-    // Vec of trait objects — dynamic dispatch via Box<dyn Trait>
     let animals: Vec<Box<dyn Animal>> = vec![
-        Box::new(Dog),
-        Box::new(Cat),
-        Box::new(Cow),
+        Box::new(Dog), Box::new(Cat), Box::new(Cow),
     ];
-
     for animal in &animals {
         println!("{} says: {}", animal.name(), animal.sound());
     }
@@ -979,47 +816,28 @@ Build a generic in-memory key-value store with trait-based serialization.
 - Implement a `Printable` trait for values that can be displayed
 - Add a method to dump all entries sorted by key
 
-**Challenge Extensions:**
-- Add TTL (time-to-live) expiry for entries
-- Implement `Iterator` for the store
-- Add a `merge` method to combine two stores
-
 ---
 
-## Section 7: Closures & Functional Programming {#section-7}
+## Section 7: Closures & Functional Programming
 
 ### 7.1 Closures
 
-Closures are anonymous functions that can capture their environment.
-
 ```rust
-fn apply<F: Fn(i32) -> i32>(f: F, x: i32) -> i32 {
-    f(x)
-}
-
-fn apply_twice<F: Fn(i32) -> i32>(f: F, x: i32) -> i32 {
-    f(f(x))
-}
+fn apply<F: Fn(i32) -> i32>(f: F, x: i32) -> i32 { f(x) }
+fn apply_twice<F: Fn(i32) -> i32>(f: F, x: i32) -> i32 { f(f(x)) }
 
 fn main() {
-    let double = |x| x * 2;
-    let add_ten = |x| x + 10;
+    println!("double(5) = {}", apply(|x| x * 2, 5));
+    println!("add_ten(5) = {}", apply(|x| x + 10, 5));
+    println!("double twice: {}", apply_twice(|x| x * 2, 3));
 
-    println!("double(5) = {}", apply(double, 5));
-    println!("add_ten(5) = {}", apply(add_ten, 5));
-    println!("double applied twice to 3 = {}", apply_twice(|x| x * 2, 3));
-
-    // Capturing environment
     let threshold = 5;
-    let is_big = |x: i32| x > threshold; // captures threshold
-
     let numbers = vec![1, 8, 3, 9, 2, 7];
-    let big_numbers: Vec<i32> = numbers.into_iter().filter(|&x| is_big(x)).collect();
-    println!("Numbers > {}: {:?}", threshold, big_numbers);
+    let big: Vec<i32> = numbers.into_iter().filter(|&x| x > threshold).collect();
+    println!("Numbers > {}: {:?}", threshold, big);
 
-    // move closures
     let name = String::from("Alice");
-    let greet = move || println!("Hello, {}!", name); // name is moved
+    let greet = move || println!("Hello, {}!", name);
     greet();
 }
 ```
@@ -1031,19 +849,15 @@ fn main() {
 ```rust
 fn call_once<F: FnOnce()>(f: F) { f(); }
 fn call_mut<F: FnMut()>(mut f: F) { f(); f(); }
-fn call_fn<F: Fn()>(f: F) { f(); f(); f(); }
+fn call_fn<F: Fn()>(f: F) { f(); f(); }
 
 fn main() {
     let s = String::from("hello");
-
-    // FnOnce — consumes captured value
     call_once(move || println!("FnOnce: {}", s));
 
-    // FnMut — mutates captured value
     let mut count = 0;
     call_mut(|| { count += 1; println!("FnMut count: {}", count); });
 
-    // Fn — immutable borrow
     let msg = "world";
     call_fn(|| println!("Fn: {}", msg));
 }
@@ -1056,34 +870,24 @@ fn main() {
 ```rust
 fn main() {
     let data = vec![
-        ("Alice", 85),
-        ("Bob", 92),
-        ("Charlie", 78),
-        ("Diana", 95),
-        ("Eve", 88),
+        ("Alice", 85), ("Bob", 92), ("Charlie", 78),
+        ("Diana", 95), ("Eve", 88),
     ];
 
-    // Pipeline: filter passing students, sort by score, take top 3
-    let top_students: Vec<_> = data.iter()
-        .filter(|(_, score)| *score >= 80)
-        .collect::<Vec<_>>()
-        .into_iter()
+    let mut top: Vec<_> = data.iter()
+        .filter(|(_, s)| *s >= 80)
         .cloned()
-        .collect::<Vec<_>>();
-
-    let mut sorted = top_students.clone();
-    sorted.sort_by(|a, b| b.1.cmp(&a.1));
+        .collect();
+    top.sort_by(|a, b| b.1.cmp(&a.1));
 
     println!("Top students:");
-    for (name, score) in sorted.iter().take(3) {
+    for (name, score) in top.iter().take(3) {
         println!("  {} - {}", name, score);
     }
 
-    // Partition
     let (passing, failing): (Vec<_>, Vec<_>) = data.iter()
-        .partition(|(_, score)| *score >= 80);
-
-    println!("\nPassing: {}, Failing: {}", passing.len(), failing.len());
+        .partition(|(_, s)| *s >= 80);
+    println!("Passing: {}, Failing: {}", passing.len(), failing.len());
 }
 ```
 
@@ -1101,26 +905,21 @@ Build a data processing pipeline using closures and iterators.
 
 ---
 
-## Section 8: Modules, Crates & Cargo {#section-8}
+## Section 8: Modules, Crates & Cargo
 
 ### 8.1 Modules
 
 ```rust
-// src/main.rs
 mod math {
     pub mod basic {
         pub fn add(a: i32, b: i32) -> i32 { a + b }
         pub fn subtract(a: i32, b: i32) -> i32 { a - b }
     }
-
     pub mod advanced {
         pub fn power(base: f64, exp: u32) -> f64 {
             (0..exp).fold(1.0, |acc, _| acc * base)
         }
-
-        pub fn factorial(n: u64) -> u64 {
-            (1..=n).product()
-        }
+        pub fn factorial(n: u64) -> u64 { (1..=n).product() }
     }
 }
 
@@ -1139,8 +938,6 @@ fn main() {
 
 ### 8.2 Cargo & Dependencies
 
-`Cargo.toml` is the manifest file for your project.
-
 ```toml
 [package]
 name = "my_project"
@@ -1150,12 +947,10 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 clap = { version = "4", features = ["derive"] }
+thiserror = "1.0"
 ```
-
-Common Cargo commands:
 
 ```bash
 cargo new my_project       # Create new project
@@ -1165,7 +960,6 @@ cargo run                  # Build and run
 cargo test                 # Run tests
 cargo doc --open           # Generate and open docs
 cargo add serde            # Add a dependency
-cargo update               # Update dependencies
 cargo clippy               # Lint your code
 cargo fmt                  # Format your code
 ```
@@ -1177,10 +971,6 @@ cargo fmt                  # Format your code
 ```rust
 fn add(a: i32, b: i32) -> i32 { a + b }
 
-fn divide(a: f64, b: f64) -> Option<f64> {
-    if b == 0.0 { None } else { Some(a / b) }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1189,17 +979,6 @@ mod tests {
     fn test_add() {
         assert_eq!(add(2, 3), 5);
         assert_eq!(add(-1, 1), 0);
-        assert_eq!(add(0, 0), 0);
-    }
-
-    #[test]
-    fn test_divide_normal() {
-        assert_eq!(divide(10.0, 2.0), Some(5.0));
-    }
-
-    #[test]
-    fn test_divide_by_zero() {
-        assert_eq!(divide(5.0, 0.0), None);
     }
 
     #[test]
@@ -1218,17 +997,542 @@ mod tests {
 Create a reusable library crate for mathematical utilities.
 
 **Requirements:**
-- Implement a `stats` module with mean, median, mode, variance, std deviation
-- Implement a `geometry` module with 2D and 3D shape calculations
+- Implement a `stats` module: mean, median, mode, variance, std deviation
+- Implement a `geometry` module: 2D and 3D shape calculations
 - Write comprehensive unit tests for all functions
 - Document all public APIs with doc comments (`///`)
-- Publish-ready `Cargo.toml` with proper metadata
 
 ---
 
-## Section 9: Concurrency & Async Programming {#section-9}
+## Section 9: Working with Files
 
-### 9.1 Threads
+### 9.1 Basic File I/O
+
+The `std::fs` module provides synchronous file operations. These are the building blocks for all file work in Rust.
+
+```rust
+use std::fs;
+use std::io::{self, Write, BufRead, BufReader, BufWriter};
+
+fn main() -> io::Result<()> {
+    // --- Writing a file ---
+    fs::write("hello.txt", "Hello, file world!\n")?;
+
+    // --- Reading entire file as a String ---
+    let content = fs::read_to_string("hello.txt")?;
+    println!("Read: {}", content.trim());
+
+    // --- Reading as raw bytes ---
+    let bytes = fs::read("hello.txt")?;
+    println!("Bytes: {:?}", &bytes[..5]);
+
+    // --- Appending to a file ---
+    let mut file = fs::OpenOptions::new()
+        .append(true)
+        .open("hello.txt")?;
+    writeln!(file, "Appended line.")?;
+
+    // --- Buffered writing (efficient for many small writes) ---
+    let out = fs::File::create("buffered.txt")?;
+    let mut writer = BufWriter::new(out);
+    for i in 0..1000 {
+        writeln!(writer, "Line {}", i)?;
+    }
+    writer.flush()?; // Ensure all buffered data is written
+
+    // --- Buffered reading line by line ---
+    let input = fs::File::open("buffered.txt")?;
+    let reader = BufReader::new(input);
+    let mut line_count = 0;
+    for line in reader.lines() {
+        let _ = line?;
+        line_count += 1;
+    }
+    println!("Lines written and read back: {}", line_count);
+
+    // --- Cleanup ---
+    fs::remove_file("hello.txt")?;
+    fs::remove_file("buffered.txt")?;
+
+    Ok(())
+}
+```
+
+---
+
+### 9.2 Working with Paths and Directories
+
+`std::path::Path` and `PathBuf` are Rust's cross-platform path types.
+
+```rust
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::io;
+
+fn main() -> io::Result<()> {
+    // --- Building paths safely (cross-platform) ---
+    let base = PathBuf::from("my_project");
+    let config_path = base.join("config").join("settings.toml");
+    println!("Config path: {}", config_path.display());
+
+    // --- Path inspection ---
+    let p = Path::new("/home/user/documents/report.pdf");
+    println!("File name:  {:?}", p.file_name());
+    println!("Extension:  {:?}", p.extension());
+    println!("Parent dir: {:?}", p.parent());
+    println!("Stem:       {:?}", p.file_stem());
+    println!("Is absolute: {}", p.is_absolute());
+
+    // --- Creating directories ---
+    fs::create_dir_all("sandbox/a/b/c")?;
+
+    // --- Listing directory contents ---
+    for entry in fs::read_dir("sandbox")? {
+        let entry = entry?;
+        let path = entry.path();
+        let metadata = entry.metadata()?;
+        println!(
+            "{} | dir={} | size={}",
+            path.display(),
+            metadata.is_dir(),
+            metadata.len()
+        );
+    }
+
+    // --- Recursive directory walk (manual) ---
+    fn walk_dir(dir: &Path) -> io::Result<()> {
+        if dir.is_dir() {
+            for entry in fs::read_dir(dir)? {
+                let entry = entry?;
+                let path = entry.path();
+                if path.is_dir() {
+                    walk_dir(&path)?;
+                } else {
+                    println!("File: {}", path.display());
+                }
+            }
+        }
+        Ok(())
+    }
+
+    walk_dir(Path::new("sandbox"))?;
+
+    // --- Cleanup ---
+    fs::remove_dir_all("sandbox")?;
+
+    Ok(())
+}
+```
+
+---
+
+### 9.3 Temporary Files
+
+Temporary files are essential for safe intermediate processing. Use the `tempfile` crate for robust temp file handling.
+
+Add to `Cargo.toml`:
+```toml
+[dependencies]
+tempfile = "3"
+```
+
+```rust
+use std::io::{Write, Read, Seek, SeekFrom};
+use tempfile::{tempfile, NamedTempFile, TempDir};
+
+fn main() -> std::io::Result<()> {
+    // --- Anonymous temp file (deleted when handle is dropped) ---
+    let mut tmp = tempfile()?;
+    writeln!(tmp, "Temporary data")?;
+    tmp.seek(SeekFrom::Start(0))?;
+    let mut content = String::new();
+    tmp.read_to_string(&mut content)?;
+    println!("Anon temp: {}", content.trim());
+    // File is automatically deleted here when `tmp` goes out of scope
+
+    // --- Named temp file (you can get its path) ---
+    let mut named = NamedTempFile::new()?;
+    writeln!(named, "Named temp content")?;
+    println!("Temp file path: {}", named.path().display());
+
+    // Persist the temp file (moves it to a permanent location)
+    let permanent_path = std::env::temp_dir().join("my_saved_file.txt");
+    named.persist(&permanent_path)?;
+    println!("Persisted to: {}", permanent_path.display());
+    std::fs::remove_file(&permanent_path)?;
+
+    // --- Temp directory ---
+    let tmp_dir = TempDir::new()?;
+    let file_path = tmp_dir.path().join("data.txt");
+    std::fs::write(&file_path, "data in temp dir")?;
+    println!("Temp dir: {}", tmp_dir.path().display());
+    // Entire directory is deleted when `tmp_dir` is dropped
+
+    Ok(())
+}
+```
+
+---
+
+### 9.4 Atomic File Writing
+
+Atomic writes prevent data corruption — if your program crashes mid-write, the original file is untouched. The pattern is: **write to a temp file → rename over the target**.
+
+```rust
+use std::fs::{self, File, OpenOptions};
+use std::io::{self, Write, BufWriter};
+use std::path::Path;
+
+/// Atomically write `data` to `target_path`.
+/// Uses a sibling temp file + rename to ensure the write is all-or-nothing.
+fn atomic_write(target_path: &Path, data: &[u8]) -> io::Result<()> {
+    // Temp file must be on the same filesystem as the target
+    // so that rename() is atomic (a single syscall).
+    let parent = target_path.parent().unwrap_or(Path::new("."));
+    let tmp_path = parent.join(format!(
+        ".tmp_{}_{}",
+        target_path.file_name().unwrap().to_string_lossy(),
+        std::process::id()
+    ));
+
+    // Write to the temp file
+    {
+        let mut tmp_file = BufWriter::new(File::create(&tmp_path)?);
+        tmp_file.write_all(data)?;
+        tmp_file.flush()?;
+        // fsync ensures data is on disk before rename
+        tmp_file.into_inner()?.sync_all()?;
+    }
+
+    // Atomically replace the target
+    fs::rename(&tmp_path, target_path)?;
+
+    Ok(())
+}
+
+fn main() -> io::Result<()> {
+    let path = Path::new("config.json");
+
+    let data = r#"{ "version": 1, "debug": false }"#;
+    atomic_write(path, data.as_bytes())?;
+    println!("Wrote config atomically.");
+
+    // Simulate an update
+    let updated = r#"{ "version": 2, "debug": true }"#;
+    atomic_write(path, updated.as_bytes())?;
+    println!("Updated config atomically.");
+
+    println!("Final: {}", fs::read_to_string(path)?);
+    fs::remove_file(path)?;
+
+    Ok(())
+}
+```
+
+> **Why rename is atomic:** On POSIX systems (Linux/macOS), `rename()` is guaranteed to be atomic by the kernel. On Windows, Rust's `fs::rename` uses `MoveFileExW` with `MOVEFILE_REPLACE_EXISTING`. For cross-platform guaranteed atomicity, consider the `atomicwrites` or `tempfile` crates.
+
+---
+
+### 9.5 File Metadata & Permissions
+
+```rust
+use std::fs;
+use std::time::UNIX_EPOCH;
+
+fn main() -> std::io::Result<()> {
+    fs::write("meta_test.txt", "some content")?;
+
+    let meta = fs::metadata("meta_test.txt")?;
+
+    println!("Size:       {} bytes", meta.len());
+    println!("Is file:    {}", meta.is_file());
+    println!("Is dir:     {}", meta.is_dir());
+    println!("Read-only:  {}", meta.permissions().readonly());
+
+    if let Ok(modified) = meta.modified() {
+        let secs = modified.duration_since(UNIX_EPOCH).unwrap().as_secs();
+        println!("Modified:   {} (unix timestamp)", secs);
+    }
+
+    // Make file read-only
+    let mut perms = meta.permissions();
+    perms.set_readonly(true);
+    fs::set_permissions("meta_test.txt", perms)?;
+    println!("Set to read-only.");
+
+    // Restore write permission before deleting
+    let mut perms = fs::metadata("meta_test.txt")?.permissions();
+    perms.set_readonly(false);
+    fs::set_permissions("meta_test.txt", perms)?;
+    fs::remove_file("meta_test.txt")?;
+
+    Ok(())
+}
+```
+
+---
+
+### 9.6 Async File I/O with Tokio
+
+For applications that need to handle many concurrent file operations without blocking threads, use `tokio::fs`.
+
+Add to `Cargo.toml`:
+```toml
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+```
+
+```rust
+use tokio::fs::{self, File, OpenOptions};
+use tokio::io::{AsyncReadExt, AsyncWriteExt, AsyncSeekExt, BufReader, BufWriter};
+use std::io::SeekFrom;
+
+#[tokio::main]
+async fn main() -> tokio::io::Result<()> {
+    // --- Async write ---
+    fs::write("async_hello.txt", "Hello from async Rust!\n").await?;
+
+    // --- Async read ---
+    let content = fs::read_to_string("async_hello.txt").await?;
+    println!("Read: {}", content.trim());
+
+    // --- Async buffered write ---
+    let file = File::create("async_buffered.txt").await?;
+    let mut writer = BufWriter::new(file);
+    for i in 0..100 {
+        writer.write_all(format!("Line {}\n", i).as_bytes()).await?;
+    }
+    writer.flush().await?;
+
+    // --- Async buffered read ---
+    let file = File::open("async_buffered.txt").await?;
+    let mut reader = BufReader::new(file);
+    let mut line = String::new();
+    use tokio::io::AsyncBufReadExt;
+    let mut count = 0;
+    loop {
+        line.clear();
+        let n = reader.read_line(&mut line).await?;
+        if n == 0 { break; }
+        count += 1;
+    }
+    println!("Lines read: {}", count);
+
+    // --- Concurrent file reads ---
+    let paths = vec!["async_hello.txt", "async_buffered.txt"];
+    let handles: Vec<_> = paths.iter()
+        .map(|p| tokio::spawn(fs::read_to_string(p.to_string())))
+        .collect();
+
+    for handle in handles {
+        match handle.await? {
+            Ok(text) => println!("Concurrent read: {} chars", text.len()),
+            Err(e) => println!("Error: {}", e),
+        }
+    }
+
+    // --- Cleanup ---
+    fs::remove_file("async_hello.txt").await?;
+    fs::remove_file("async_buffered.txt").await?;
+
+    Ok(())
+}
+```
+
+---
+
+### 9.7 Async Atomic Writing
+
+Combining async I/O with atomic write safety:
+
+```rust
+use tokio::fs::{self, File};
+use tokio::io::{AsyncWriteExt, BufWriter};
+use std::path::Path;
+
+async fn async_atomic_write(target: &Path, data: &[u8]) -> tokio::io::Result<()> {
+    let parent = target.parent().unwrap_or(Path::new("."));
+    let tmp = parent.join(format!(
+        ".tmp_{}_{}",
+        target.file_name().unwrap().to_string_lossy(),
+        std::process::id()
+    ));
+
+    {
+        let file = File::create(&tmp).await?;
+        let mut writer = BufWriter::new(file);
+        writer.write_all(data).await?;
+        writer.flush().await?;
+        writer.into_inner().sync_all().await?;
+    }
+
+    fs::rename(&tmp, target).await?;
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() -> tokio::io::Result<()> {
+    let path = Path::new("settings.json");
+    let payload = br#"{"theme":"dark","font_size":14}"#;
+
+    async_atomic_write(path, payload).await?;
+    println!("Async atomic write complete.");
+    println!("Content: {}", fs::read_to_string(path).await?);
+
+    fs::remove_file(path).await?;
+    Ok(())
+}
+```
+
+---
+
+### 9.8 File Watching
+
+React to file system changes in real time using the `notify` crate.
+
+Add to `Cargo.toml`:
+```toml
+[dependencies]
+notify = "6"
+```
+
+```rust
+use notify::{Watcher, RecursiveMode, recommended_watcher, Event};
+use std::sync::mpsc::channel;
+use std::time::Duration;
+use std::path::Path;
+
+fn main() -> notify::Result<()> {
+    let (tx, rx) = channel::<notify::Result<Event>>();
+
+    let mut watcher = recommended_watcher(tx)?;
+    watcher.watch(Path::new("."), RecursiveMode::NonRecursive)?;
+
+    println!("Watching current directory for changes...");
+    println!("(Modify or create a file to see events)");
+
+    // Listen for up to 5 events then exit
+    let mut event_count = 0;
+    for res in rx {
+        match res {
+            Ok(event) => {
+                println!("Event: {:?}", event.kind);
+                for path in &event.paths {
+                    println!("  Path: {}", path.display());
+                }
+                event_count += 1;
+                if event_count >= 5 { break; }
+            }
+            Err(e) => println!("Watch error: {:?}", e),
+        }
+    }
+
+    Ok(())
+}
+```
+
+---
+
+### 🛠️ Mini Project 9: Atomic Config Manager
+
+Build a configuration manager that safely reads and writes JSON config files.
+
+**Requirements:**
+- Load config from `~/.myapp/config.json` on startup (create defaults if missing)
+- Support `get <key>`, `set <key> <value>`, and `list` commands
+- All writes must be atomic (temp file + rename)
+- Preserve comments/formatting using pretty-printed JSON
+- Handle concurrent access gracefully with file locking
+
+```rust
+// Cargo.toml dependencies needed:
+// serde = { version = "1.0", features = ["derive"] }
+// serde_json = "1.0"
+// dirs = "5"
+
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fs::{self, File};
+use std::io::{BufWriter, Write};
+use std::path::{Path, PathBuf};
+
+#[derive(Debug, Serialize, Deserialize, Default)]
+struct Config {
+    values: HashMap<String, serde_json::Value>,
+}
+
+struct ConfigManager {
+    path: PathBuf,
+    config: Config,
+}
+
+impl ConfigManager {
+    fn load_or_create(path: PathBuf) -> std::io::Result<Self> {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        let config = if path.exists() {
+            let text = fs::read_to_string(&path)?;
+            serde_json::from_str(&text).unwrap_or_default()
+        } else {
+            Config::default()
+        };
+        Ok(ConfigManager { path, config })
+    }
+
+    fn get(&self, key: &str) -> Option<&serde_json::Value> {
+        self.config.values.get(key)
+    }
+
+    fn set(&mut self, key: String, value: serde_json::Value) {
+        self.config.values.insert(key, value);
+    }
+
+    fn save(&self) -> std::io::Result<()> {
+        let parent = self.path.parent().unwrap_or(Path::new("."));
+        let tmp = parent.join(format!(".tmp_config_{}", std::process::id()));
+        {
+            let mut writer = BufWriter::new(File::create(&tmp)?);
+            let json = serde_json::to_string_pretty(&self.config).unwrap();
+            writer.write_all(json.as_bytes())?;
+            writer.flush()?;
+            writer.into_inner()?.sync_all()?;
+        }
+        fs::rename(&tmp, &self.path)?;
+        Ok(())
+    }
+}
+
+fn main() -> std::io::Result<()> {
+    let config_path = PathBuf::from("myapp_config.json");
+    let mut mgr = ConfigManager::load_or_create(config_path)?;
+
+    mgr.set("theme".into(), serde_json::json!("dark"));
+    mgr.set("font_size".into(), serde_json::json!(14));
+    mgr.set("auto_save".into(), serde_json::json!(true));
+    mgr.save()?;
+
+    println!("Config saved.");
+    if let Some(theme) = mgr.get("theme") {
+        println!("theme = {}", theme);
+    }
+
+    fs::remove_file("myapp_config.json")?;
+    Ok(())
+}
+```
+
+**Challenge Extensions:**
+- Add async support using `tokio::fs`
+- Implement file locking with the `fs2` crate
+- Support TOML format in addition to JSON
+- Add a `--watch` flag that reloads config when the file changes
+
+---
+
+## Section 10: Concurrency & Async Programming
+
+### 10.1 Threads
 
 ```rust
 use std::thread;
@@ -1247,13 +1551,13 @@ fn main() {
         thread::sleep(Duration::from_millis(80));
     }
 
-    handle.join().unwrap(); // Wait for spawned thread to finish
+    handle.join().unwrap();
 }
 ```
 
 ---
 
-### 9.2 Message Passing with Channels
+### 10.2 Message Passing with Channels
 
 ```rust
 use std::sync::mpsc;
@@ -1262,16 +1566,14 @@ use std::thread;
 fn main() {
     let (tx, rx) = mpsc::channel();
 
-    // Spawn multiple producers
     for i in 0..3 {
         let tx_clone = tx.clone();
         thread::spawn(move || {
-            let msg = format!("Message from thread {}", i);
-            tx_clone.send(msg).unwrap();
+            tx_clone.send(format!("Message from thread {}", i)).unwrap();
         });
     }
 
-    drop(tx); // Drop original sender so receiver knows when all senders are done
+    drop(tx);
 
     for received in rx {
         println!("Received: {}", received);
@@ -1281,7 +1583,7 @@ fn main() {
 
 ---
 
-### 9.3 Shared State with Arc and Mutex
+### 10.3 Shared State with Arc and Mutex
 
 ```rust
 use std::sync::{Arc, Mutex};
@@ -1300,17 +1602,14 @@ fn main() {
         handles.push(handle);
     }
 
-    for handle in handles {
-        handle.join().unwrap();
-    }
-
-    println!("Final counter: {}", *counter.lock().unwrap()); // 10
+    for handle in handles { handle.join().unwrap(); }
+    println!("Final counter: {}", *counter.lock().unwrap());
 }
 ```
 
 ---
 
-### 9.4 Async/Await with Tokio
+### 10.4 Async/Await with Tokio
 
 ```rust
 use tokio::time::{sleep, Duration};
@@ -1322,12 +1621,6 @@ async fn fetch_data(id: u32) -> String {
 
 #[tokio::main]
 async fn main() {
-    // Sequential
-    let result1 = fetch_data(1).await;
-    let result2 = fetch_data(2).await;
-    println!("{}, {}", result1, result2);
-
-    // Concurrent with join!
     let (r1, r2, r3) = tokio::join!(
         fetch_data(10),
         fetch_data(11),
@@ -1339,7 +1632,7 @@ async fn main() {
 
 ---
 
-### 🛠️ Mini Project 9: Concurrent Web Scraper
+### 🛠️ Mini Project 10: Concurrent Web Scraper
 
 Build a concurrent web scraper that fetches multiple URLs in parallel.
 
@@ -1357,12 +1650,11 @@ Build a concurrent web scraper that fetches multiple URLs in parallel.
 
 ---
 
-## Section 10: Advanced Rust — Macros, Unsafe & FFI {#section-10}
+## Section 11: Advanced Rust — Macros, Unsafe & FFI
 
-### 10.1 Declarative Macros
+### 11.1 Declarative Macros
 
 ```rust
-// Define a macro
 macro_rules! vec_of_strings {
     ($($x:expr),*) => {
         vec![$($x.to_string()),*]
@@ -1382,7 +1674,6 @@ macro_rules! assert_approx_eq {
 fn main() {
     let names = vec_of_strings!["Alice", "Bob", "Charlie"];
     println!("{:?}", names);
-
     assert_approx_eq!(3.14159, std::f64::consts::PI, 0.001);
     println!("Pi approximation is close enough!");
 }
@@ -1390,7 +1681,7 @@ fn main() {
 
 ---
 
-### 10.2 Procedural Macros (Derive)
+### 11.2 Procedural Macros (Derive)
 
 ```rust
 use serde::{Serialize, Deserialize};
@@ -1411,11 +1702,9 @@ fn main() {
         debug_mode: true,
     };
 
-    // Serialize to JSON
     let json = serde_json::to_string_pretty(&config).unwrap();
     println!("{}", json);
 
-    // Deserialize from JSON
     let config2: Config = serde_json::from_str(&json).unwrap();
     println!("Host: {}, Port: {}", config2.host, config2.port);
 }
@@ -1423,11 +1712,10 @@ fn main() {
 
 ---
 
-### 10.3 Unsafe Rust
+### 11.3 Unsafe Rust
 
 ```rust
 fn main() {
-    // Raw pointers
     let mut num = 5;
     let r1 = &num as *const i32;
     let r2 = &mut num as *mut i32;
@@ -1438,18 +1726,14 @@ fn main() {
         println!("r2 = {}", *r2);
     }
 
-    // Calling unsafe functions
-    unsafe fn dangerous() {
-        println!("This is an unsafe function");
-    }
-
+    unsafe fn dangerous() { println!("Unsafe function called"); }
     unsafe { dangerous(); }
 }
 ```
 
 ---
 
-### 10.4 Smart Pointers
+### 11.4 Smart Pointers
 
 ```rust
 use std::rc::Rc;
@@ -1460,31 +1744,25 @@ fn main() {
     let boxed = Box::new(5);
     println!("Boxed: {}", boxed);
 
-    // Rc<T> — reference counting (single-threaded)
+    // Rc<T> — reference counting
     let a = Rc::new(String::from("shared"));
     let b = Rc::clone(&a);
-    let c = Rc::clone(&a);
-    println!("Ref count: {}", Rc::strong_count(&a)); // 3
-    println!("{} {} {}", a, b, c);
+    println!("Ref count: {}", Rc::strong_count(&a));
+    println!("{} {}", a, b);
 
-    // RefCell<T> — interior mutability
-    let data = RefCell::new(vec![1, 2, 3]);
-    data.borrow_mut().push(4);
-    println!("{:?}", data.borrow());
-
-    // Rc<RefCell<T>> — shared mutable state (single-threaded)
+    // Rc<RefCell<T>> — shared mutable state
     let shared = Rc::new(RefCell::new(0));
-    let clone1 = Rc::clone(&shared);
-    let clone2 = Rc::clone(&shared);
-    *clone1.borrow_mut() += 10;
-    *clone2.borrow_mut() += 20;
-    println!("Shared value: {}", shared.borrow()); // 30
+    let c1 = Rc::clone(&shared);
+    let c2 = Rc::clone(&shared);
+    *c1.borrow_mut() += 10;
+    *c2.borrow_mut() += 20;
+    println!("Shared value: {}", shared.borrow());
 }
 ```
 
 ---
 
-### 🛠️ Mini Project 10: Custom Derive Macro
+### 🛠️ Mini Project 11: Custom Derive Macro
 
 Build a custom procedural macro that auto-implements a `Builder` pattern.
 
@@ -1497,7 +1775,7 @@ Build a custom procedural macro that auto-implements a `Builder` pattern.
 
 ---
 
-## 🏆 Capstone Project: Real-World CLI Task Manager {#capstone}
+## Capstone Project: Real-World CLI Task Manager
 
 ### Project Overview
 
@@ -1513,7 +1791,7 @@ Build a fully-featured **command-line task management application** — a real-w
 - 🏷️ Tag tasks with categories and priorities
 - 📅 Set due dates and get overdue alerts
 - 🔍 Filter and search tasks
-- 💾 Persist data to a JSON file
+- 💾 Persist data atomically to a JSON file
 - 📊 Show statistics and productivity reports
 - 🎨 Colorful terminal output
 - ⚡ Async file I/O
@@ -1528,7 +1806,7 @@ rustask/
 ├── src/
 │   ├── main.rs          # Entry point, CLI parsing
 │   ├── task.rs          # Task struct, enums, logic
-│   ├── storage.rs       # File persistence (JSON)
+│   ├── storage.rs       # Atomic file persistence (JSON)
 │   ├── commands.rs      # Command handlers
 │   ├── display.rs       # Terminal formatting
 │   └── error.rs         # Custom error types
@@ -1557,6 +1835,8 @@ colored = "2.0"
 tokio = { version = "1", features = ["full"] }
 thiserror = "1.0"
 uuid = { version = "1.0", features = ["v4"] }
+dirs = "5"
+tempfile = "3"
 ```
 
 ---
@@ -1569,31 +1849,19 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum Priority {
-    Low,
-    Medium,
-    High,
-    Critical,
-}
+pub enum Priority { Low, Medium, High, Critical }
 
 impl Priority {
     pub fn emoji(&self) -> &str {
         match self {
-            Priority::Low => "🟢",
-            Priority::Medium => "🟡",
-            Priority::High => "🟠",
-            Priority::Critical => "🔴",
+            Priority::Low => "🟢", Priority::Medium => "🟡",
+            Priority::High => "🟠", Priority::Critical => "🔴",
         }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum Status {
-    Todo,
-    InProgress,
-    Done,
-    Cancelled,
-}
+pub enum Status { Todo, InProgress, Done, Cancelled }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Task {
@@ -1612,25 +1880,15 @@ impl Task {
     pub fn new(title: String, priority: Priority) -> Self {
         Task {
             id: Uuid::new_v4().to_string()[..8].to_string(),
-            title,
-            description: None,
-            priority,
-            status: Status::Todo,
-            tags: vec![],
-            due_date: None,
-            created_at: Local::now(),
-            completed_at: None,
+            title, description: None, priority,
+            status: Status::Todo, tags: vec![],
+            due_date: None, created_at: Local::now(), completed_at: None,
         }
     }
 
     pub fn is_overdue(&self) -> bool {
-        if self.status == Status::Done || self.status == Status::Cancelled {
-            return false;
-        }
-        if let Some(due) = self.due_date {
-            return due < Local::now().date_naive();
-        }
-        false
+        if matches!(self.status, Status::Done | Status::Cancelled) { return false; }
+        self.due_date.map_or(false, |d| d < Local::now().date_naive())
     }
 
     pub fn complete(&mut self) {
@@ -1642,110 +1900,49 @@ impl Task {
 
 ---
 
-### CLI Interface (src/main.rs)
-
-```rust
-use clap::{Parser, Subcommand};
-
-#[derive(Parser)]
-#[command(name = "rustask")]
-#[command(about = "A blazing-fast CLI task manager", long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Add a new task
-    Add {
-        /// Task title
-        title: String,
-        /// Priority: low, medium, high, critical
-        #[arg(short, long, default_value = "medium")]
-        priority: String,
-        /// Due date (YYYY-MM-DD)
-        #[arg(short, long)]
-        due: Option<String>,
-        /// Tags (comma-separated)
-        #[arg(short, long)]
-        tags: Option<String>,
-    },
-    /// List all tasks
-    List {
-        /// Filter by status: todo, in-progress, done
-        #[arg(short, long)]
-        status: Option<String>,
-        /// Filter by tag
-        #[arg(short, long)]
-        tag: Option<String>,
-        /// Show only overdue tasks
-        #[arg(long)]
-        overdue: bool,
-    },
-    /// Mark a task as complete
-    Done {
-        /// Task ID
-        id: String,
-    },
-    /// Delete a task
-    Delete {
-        /// Task ID
-        id: String,
-    },
-    /// Show task statistics
-    Stats,
-    /// Search tasks by keyword
-    Search {
-        /// Search query
-        query: String,
-    },
-}
-
-#[tokio::main]
-async fn main() {
-    let cli = Cli::parse();
-    // Route to command handlers...
-}
-```
-
----
-
-### Storage Layer (src/storage.rs)
+### Atomic Storage Layer (src/storage.rs)
 
 ```rust
 use crate::error::AppError;
 use crate::task::Task;
 use std::path::PathBuf;
-use tokio::fs;
+use tokio::fs::{self, File};
+use tokio::io::{AsyncWriteExt, BufWriter};
 
-pub struct Storage {
-    path: PathBuf,
-}
+pub struct Storage { path: PathBuf }
 
 impl Storage {
     pub fn new() -> Self {
         let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-        Storage {
-            path: home.join(".rustask").join("tasks.json"),
-        }
+        Storage { path: home.join(".rustask").join("tasks.json") }
     }
 
     pub async fn load(&self) -> Result<Vec<Task>, AppError> {
-        if !self.path.exists() {
-            return Ok(vec![]);
-        }
+        if !self.path.exists() { return Ok(vec![]); }
         let content = fs::read_to_string(&self.path).await?;
-        let tasks: Vec<Task> = serde_json::from_str(&content)?;
-        Ok(tasks)
+        Ok(serde_json::from_str(&content)?)
     }
 
+    /// Atomically save tasks — uses temp file + rename to prevent corruption
     pub async fn save(&self, tasks: &[Task]) -> Result<(), AppError> {
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent).await?;
         }
-        let json = serde_json::to_string_pretty(tasks)?;
-        fs::write(&self.path, json).await?;
+
+        let tmp = self.path.with_extension(
+            format!("tmp_{}", std::process::id())
+        );
+
+        {
+            let file = File::create(&tmp).await?;
+            let mut writer = BufWriter::new(file);
+            let json = serde_json::to_string_pretty(tasks)?;
+            writer.write_all(json.as_bytes()).await?;
+            writer.flush().await?;
+            writer.into_inner().sync_all().await?;
+        }
+
+        fs::rename(&tmp, &self.path).await?;
         Ok(())
     }
 }
@@ -1761,19 +1958,64 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("I/O error: {0}")]
-    Io(#[from] std::io::Error),
-
+    Io(#[from] tokio::io::Error),
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
-
     #[error("Task not found: {0}")]
     TaskNotFound(String),
-
     #[error("Invalid date format: {0}")]
     InvalidDate(String),
-
     #[error("Invalid priority: {0}")]
     InvalidPriority(String),
+}
+```
+
+---
+
+### CLI Interface (src/main.rs)
+
+```rust
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "rustask", about = "A blazing-fast CLI task manager")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Add a new task
+    Add {
+        title: String,
+        #[arg(short, long, default_value = "medium")]
+        priority: String,
+        #[arg(short, long)]
+        due: Option<String>,
+        #[arg(short, long)]
+        tags: Option<String>,
+    },
+    /// List all tasks
+    List {
+        #[arg(short, long)] status: Option<String>,
+        #[arg(short, long)] tag: Option<String>,
+        #[arg(long)] overdue: bool,
+    },
+    /// Mark a task as complete
+    Done { id: String },
+    /// Delete a task
+    Delete { id: String },
+    /// Show statistics
+    Stats,
+    /// Search tasks by keyword
+    Search { query: String },
+}
+
+#[tokio::main]
+async fn main() {
+    let cli = Cli::parse();
+    // Route to command handlers in commands.rs
 }
 ```
 
@@ -1793,29 +2035,19 @@ pub fn print_task(task: &Task) {
         Status::Cancelled => "✗".red(),
     };
 
-    let overdue_marker = if task.is_overdue() {
+    let overdue = if task.is_overdue() {
         " ⚠ OVERDUE".red().bold().to_string()
-    } else {
-        String::new()
-    };
+    } else { String::new() };
 
-    println!(
-        "{} {} [{}] {}{}",
-        status_icon,
-        task.priority.emoji(),
-        task.id.cyan(),
-        task.title.bold(),
-        overdue_marker
-    );
+    println!("{} {} [{}] {}{}", status_icon, task.priority.emoji(),
+        task.id.cyan(), task.title.bold(), overdue);
 
     if let Some(due) = task.due_date {
         println!("   📅 Due: {}", due);
     }
-
     if !task.tags.is_empty() {
         let tags: Vec<String> = task.tags.iter()
-            .map(|t| format!("#{}", t).blue().to_string())
-            .collect();
+            .map(|t| format!("#{}", t).blue().to_string()).collect();
         println!("   🏷  {}", tags.join(" "));
     }
 }
@@ -1827,17 +2059,16 @@ pub fn print_stats(tasks: &[Task]) {
     let overdue = tasks.iter().filter(|t| t.is_overdue()).count();
 
     println!("{}", "=== Task Statistics ===".bold());
-    println!("Total:    {}", total.to_string().cyan());
-    println!("Done:     {}", done.to_string().green());
-    println!("Todo:     {}", todo.to_string().yellow());
-    println!("Overdue:  {}", overdue.to_string().red());
+    println!("Total:   {}", total.to_string().cyan());
+    println!("Done:    {}", done.to_string().green());
+    println!("Todo:    {}", todo.to_string().yellow());
+    println!("Overdue: {}", overdue.to_string().red());
 
     if total > 0 {
-        let completion = (done as f64 / total as f64) * 100.0;
-        println!("Progress: {:.1}%", completion);
-        let bar_len = (completion / 5.0) as usize;
+        let pct = (done as f64 / total as f64) * 100.0;
+        let bar_len = (pct / 5.0) as usize;
         let bar = "█".repeat(bar_len) + &"░".repeat(20 - bar_len);
-        println!("[{}]", bar.green());
+        println!("Progress: {:.1}% [{}]", pct, bar.green());
     }
 }
 ```
@@ -1846,26 +2077,24 @@ pub fn print_stats(tasks: &[Task]) {
 
 ### Implementation Milestones
 
-Work through the project in these stages:
-
 **Milestone 1 — Core Data Model**
 - [ ] Define `Task`, `Priority`, `Status` types
 - [ ] Implement `Task::new()`, `Task::complete()`, `Task::is_overdue()`
 - [ ] Write unit tests for all methods
 
-**Milestone 2 — Storage Layer**
+**Milestone 2 — Atomic Storage Layer**
 - [ ] Implement JSON serialization/deserialization
-- [ ] Implement async `load()` and `save()`
+- [ ] Implement async `load()` and atomic `save()`
 - [ ] Handle first-run (no file exists) gracefully
+- [ ] Test that a crash mid-write does not corrupt existing data
 
 **Milestone 3 — CLI Interface**
 - [ ] Set up `clap` with all subcommands
-- [ ] Implement `add` command
-- [ ] Implement `list` command with filters
+- [ ] Implement `add` and `list` commands
 
 **Milestone 4 — Task Operations**
 - [ ] Implement `done`, `delete`, `search` commands
-- [ ] Add tag filtering
+- [ ] Add tag and status filtering
 - [ ] Add overdue detection
 
 **Milestone 5 — Display & Polish**
@@ -1883,31 +2112,20 @@ Work through the project in these stages:
 ### Sample Usage
 
 ```bash
-# Add tasks
 rustask add "Write project proposal" --priority high --due 2024-12-31 --tags work,writing
 rustask add "Buy groceries" --priority low --tags personal
-rustask add "Fix critical bug" --priority critical --due 2024-12-20
-
-# List tasks
 rustask list
 rustask list --status todo
 rustask list --tag work
 rustask list --overdue
-
-# Complete and manage
 rustask done abc12345
-rustask delete abc12345
 rustask search "bug"
-
-# Statistics
 rustask stats
 ```
 
 ---
 
 ### Stretch Goals
-
-Once the core is complete, extend `rustask` with:
 
 1. **Recurring Tasks** — tasks that reset on completion (daily, weekly)
 2. **Sub-tasks** — hierarchical task breakdown
@@ -1916,6 +2134,7 @@ Once the core is complete, extend `rustask` with:
 5. **TUI Mode** — interactive terminal UI using the `ratatui` crate
 6. **Notifications** — desktop notifications for due tasks using `notify-rust`
 7. **Natural Language Dates** — parse "tomorrow", "next Friday" as due dates
+8. **File Watching** — auto-reload tasks if the file is edited externally
 
 ---
 
