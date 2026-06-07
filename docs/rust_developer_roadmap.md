@@ -6,29 +6,31 @@
 
 ## Table of Contents
 
-1. [Getting Started with Rust](#section-1-getting-started-with-rust)
-2. [Ownership, Borrowing & Lifetimes](#section-2-ownership-borrowing-lifetimes)
-3. [Structs, Enums & Pattern Matching](#section-3-structs-enums-pattern-matching)
-4. [Smart Pointers & Interior Mutability](#section-4-smart-pointers-interior-mutability)
-5. [Error Handling](#section-5-error-handling)
-6. [Collections & Iterators](#section-6-collections-iterators)
-7. [Traits & Generics](#section-7-traits-generics)
-8. [Object-Oriented Programming in Rust](#section-8-object-oriented-programming-in-rust)
-9. [Closures & Functional Patterns](#section-9-closures-functional-patterns)
-10. [Working with Files](#section-10-working-with-files)
-11. [Command Line Arguments (CLI)](#section-11-command-line-arguments-cli)
-12. [Terminal User Interfaces (TUI)](#section-12-terminal-user-interfaces-tui)
-13. [Modules, Crates & Workspaces](#section-13-modules-crates-workspaces)
-14. [Building Reusable and Shared Libraries](#section-14-building-reusable-and-shared-libraries)
-15. [Testing, Linting & Formatting](#section-15-testing-linting-formatting)
-16. [Concurrency & Async Rust](#section-16-concurrency-async-rust)
-17. [Macros](#section-17-macros)
-18. [Unsafe Rust & FFI](#section-18-unsafe-rust-ffi)
-19. [Design Patterns in Rust](#section-19-design-patterns-in-rust)
-20. [Performance & Profiling](#section-20-performance-profiling)
-21. [Networking & Web](#section-21-networking-web)
-22. [Serde Deep Dive](#section-22-serde-deep-dive)
-23. [Capstone Project: logforge](#capstone-project-logforge)
+- [Section 1: Getting Started with Rust](#section-1-getting-started-with-rust)
+- [Section 2: The Rust Standard Library](#section-2-the-rust-standard-library)
+- [Section 3: Ownership, Borrowing & Lifetimes](#section-3-ownership-borrowing-lifetimes)
+- [Section 4: Structs, Enums & Pattern Matching](#section-4-structs-enums-pattern-matching)
+- [Section 5: Smart Pointers & Interior Mutability](#section-5-smart-pointers-interior-mutability)
+- [Section 6: Error Handling](#section-6-error-handling)
+- [Section 7: Collections & Iterators](#section-7-collections-iterators)
+- [Section 8: Traits & Generics](#section-8-traits-generics)
+- [Section 9: Object-Oriented Programming in Rust](#section-9-object-oriented-programming-in-rust)
+- [Section 10: Closures & Functional Patterns](#section-10-closures-functional-patterns)
+- [Section 11: Working with Files](#section-11-working-with-files)
+- [Section 12: Command Line Arguments (CLI)](#section-12-command-line-arguments-cli)
+- [Section 13: Terminal User Interfaces (TUI)](#section-13-terminal-user-interfaces-tui)
+- [Section 14: Modules, Crates & Workspaces](#section-14-modules-crates-workspaces)
+- [Section 15: Building Reusable and Shared Libraries](#section-15-building-reusable-and-shared-libraries)
+- [Section 16: Testing, Linting & Formatting](#section-16-testing-linting-formatting)
+- [Section 17: Concurrency & Async Rust](#section-17-concurrency-async-rust)
+- [Section 18: Macros](#section-18-macros)
+- [Section 19: Unsafe Rust & FFI](#section-19-unsafe-rust-ffi)
+- [Section 20: Design Patterns in Rust](#section-20-design-patterns-in-rust)
+- [Section 21: Performance & Profiling](#section-21-performance-profiling)
+- [Section 22: Networking & Web](#section-22-networking-web)
+- [Section 23: Serde Deep Dive](#section-23-serde-deep-dive)
+- [Capstone Project: logforge](#capstone-project-logforge)
+- [Appendix: Essential Crates Reference](#appendix-essential-crates-reference)
 
 ## Section 1: Getting Started with Rust
 
@@ -413,7 +415,1565 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 2: Ownership, Borrowing & Lifetimes
+## Section 2: The Rust Standard Library
+
+[Back to Top](#table-of-contents)
+
+### What Is the Standard Library?
+
+The Rust standard library (`std`) is the foundation upon which virtually every Rust program is built. It is a carefully curated collection of types, traits, macros, and functions that ship with every Rust installation — no extra dependencies required. Unlike some languages where the standard library is an afterthought, Rust's `std` is deeply integrated with the language itself: many of its types (`String`, `Vec`, `Option`, `Result`) are so fundamental that they are automatically imported into every module via the **prelude**.
+
+Understanding the standard library is not optional for a Rust developer. It is the vocabulary of the language. When you know what `std` provides, you stop reinventing wheels and start writing idiomatic, efficient, and maintainable code.
+
+> 💡 **Mental Model:** Think of `std` as a well-organized toolbox. Each module is a drawer, and each type or function is a specific tool. The more familiar you are with what's in the toolbox, the faster and more confidently you can build things.
+
+The official documentation lives at [https://doc.rust-lang.org/std/](https://doc.rust-lang.org/std/) and is one of the best-written API references in any programming language. You should bookmark it and consult it regularly.
+
+---
+
+### The Prelude: What You Get for Free
+
+Every Rust module automatically imports a set of items from `std::prelude::rust_2021`. This means you never need to explicitly `use` these — they are always in scope:
+
+| Item | What it is |
+|---|---|
+| `Option<T>` | Represents an optional value (`Some(T)` or `None`) |
+| `Result<T, E>` | Represents success (`Ok(T)`) or failure (`Err(E)`) |
+| `String` | Owned, heap-allocated UTF-8 string |
+| `Vec<T>` | Growable heap-allocated array |
+| `Box<T>` | Heap-allocated smart pointer |
+| `std::clone::Clone` | The `Clone` trait |
+| `std::marker::Copy` | The `Copy` trait |
+| `std::ops::Drop` | The `Drop` trait |
+| `std::convert::{From, Into}` | Type conversion traits |
+| `std::iter::{Iterator, IntoIterator}` | Iterator traits |
+| `println!`, `print!`, `eprintln!` | Output macros |
+| `panic!`, `assert!`, `assert_eq!` | Diagnostic macros |
+| `todo!`, `unimplemented!`, `unreachable!` | Placeholder macros |
+
+Everything else in `std` must be explicitly brought into scope with a `use` statement. This is a deliberate design choice: it keeps namespaces clean and makes code self-documenting — when you see `use std::collections::HashMap`, you immediately know the code uses a hash map.
+
+---
+
+### Module Overview
+
+The standard library is organized into modules. Here is a tour of the most important ones:
+
+```
+std
+├── collections   — HashMap, BTreeMap, HashSet, BTreeSet, VecDeque, LinkedList, BinaryHeap
+├── env           — Environment variables, command-line arguments, current directory
+├── fs            — File system operations (read, write, create, delete, metadata)
+├── io            — I/O traits (Read, Write, BufRead), stdin/stdout/stderr
+├── net           — TCP/UDP networking primitives
+├── path          — PathBuf and Path for cross-platform file paths
+├── process       — Spawning child processes, exit codes
+├── sync          — Arc, Mutex, RwLock, Condvar, atomic types
+├── thread        — Spawning and joining OS threads
+├── time          — Duration, Instant, SystemTime
+├── fmt           — Formatting traits (Display, Debug, Write)
+├── str           — String slice methods
+├── string        — Owned String type
+├── vec           — Vec<T> type
+├── option        — Option<T> type and methods
+├── result        — Result<T, E> type and methods
+├── iter          — Iterator trait and adapters
+├── ops           — Operator overloading traits (+, -, *, Index, etc.)
+├── convert       — From, Into, TryFrom, TryInto, AsRef, AsMut
+├── cmp           — Ordering, PartialOrd, Ord, PartialEq, Eq
+├── hash          — Hash, Hasher traits
+├── mem           — Memory utilities (size_of, swap, replace, take)
+├── ptr           — Raw pointer utilities
+├── num           — Numeric traits and constants
+├── error         — The Error trait
+└── marker        — PhantomData, Send, Sync, Sized, Copy
+```
+
+Let's explore the most important modules in depth.
+
+---
+
+### `std::collections` — Data Structures
+
+The collections module provides the standard data structures you'll reach for in everyday programming. Each has specific performance characteristics and use cases.
+
+#### `HashMap<K, V>` — The Workhorse
+
+`HashMap` is an unordered key-value store backed by a hash table. It provides O(1) average-case lookup, insertion, and deletion. It is the most commonly used collection after `Vec`.
+
+```rust
+use std::collections::HashMap;
+
+fn main() {
+    // Creating a HashMap
+    let mut scores: HashMap<String, u32> = HashMap::new();
+
+    // Inserting values
+    scores.insert(String::from("Alice"), 95);
+    scores.insert(String::from("Bob"), 87);
+    scores.insert(String::from("Charlie"), 92);
+
+    // Accessing values — returns Option<&V>
+    if let Some(score) = scores.get("Alice") {
+        println!("Alice's score: {}", score);
+    }
+
+    // The entry API — the most idiomatic way to insert-or-update
+    // This avoids double-lookups and is very common in real code
+    scores.entry(String::from("Dave")).or_insert(0);
+
+    // Increment a counter (classic pattern)
+    let text = "hello world hello rust hello";
+    let mut word_count: HashMap<&str, u32> = HashMap::new();
+    for word in text.split_whitespace() {
+        let count = word_count.entry(word).or_insert(0);
+        *count += 1; // dereference to modify the value in-place
+    }
+    println!("{:?}", word_count); // {"hello": 3, "world": 1, "rust": 1}
+
+    // Iterating — order is NOT guaranteed
+    for (name, score) in &scores {
+        println!("{}: {}", name, score);
+    }
+
+    // Checking existence
+    println!("Has Eve? {}", scores.contains_key("Eve"));
+
+    // Removing
+    scores.remove("Bob");
+
+    // Getting the number of entries
+    println!("Total students: {}", scores.len());
+}
+```
+
+> ⚠️ **Common Mistake:** Rust's `HashMap` uses `SipHash` by default, which is cryptographically secure but not the fastest. For performance-critical code where security is not a concern (e.g., internal caches), consider using `ahash` or `rustc-hash` crates as drop-in replacements.
+
+#### `BTreeMap<K, V>` — Sorted Keys
+
+`BTreeMap` is like `HashMap` but keeps keys in sorted order. It uses a B-tree internally, giving O(log n) operations. Use it when you need ordered iteration or range queries.
+
+```rust
+use std::collections::BTreeMap;
+
+fn main() {
+    let mut map = BTreeMap::new();
+    map.insert("banana", 3);
+    map.insert("apple", 5);
+    map.insert("cherry", 1);
+
+    // Iteration is always in sorted key order
+    for (fruit, count) in &map {
+        println!("{}: {}", fruit, count); // apple, banana, cherry
+    }
+
+    // Range queries — unique to BTreeMap
+    use std::ops::Bound::Included;
+    for (fruit, count) in map.range("apple"..="banana") {
+        println!("In range: {} = {}", fruit, count);
+    }
+}
+```
+
+#### `HashSet<T>` and `BTreeSet<T>` — Unique Collections
+
+Sets store unique values with no duplicates. `HashSet` is unordered and O(1), `BTreeSet` is sorted and O(log n).
+
+```rust
+use std::collections::{HashSet, BTreeSet};
+
+fn main() {
+    let mut visited: HashSet<String> = HashSet::new();
+    visited.insert(String::from("page_1"));
+    visited.insert(String::from("page_2"));
+    visited.insert(String::from("page_1")); // duplicate — ignored
+
+    println!("Visited {} unique pages", visited.len()); // 2
+
+    // Set operations
+    let a: HashSet<i32> = [1, 2, 3, 4].iter().cloned().collect();
+    let b: HashSet<i32> = [3, 4, 5, 6].iter().cloned().collect();
+
+    // Union: all elements from both sets
+    let union: HashSet<_> = a.union(&b).collect();
+    println!("Union: {:?}", union);
+
+    // Intersection: elements in both sets
+    let intersection: HashSet<_> = a.intersection(&b).collect();
+    println!("Intersection: {:?}", intersection); // {3, 4}
+
+    // Difference: elements in a but not b
+    let difference: HashSet<_> = a.difference(&b).collect();
+    println!("Difference (a - b): {:?}", difference); // {1, 2}
+
+    // Symmetric difference: elements in one but not both
+    let sym_diff: HashSet<_> = a.symmetric_difference(&b).collect();
+    println!("Symmetric difference: {:?}", sym_diff); // {1, 2, 5, 6}
+}
+```
+
+#### `VecDeque<T>` — Double-Ended Queue
+
+`VecDeque` is a ring buffer that supports efficient push/pop from both ends. Use it when you need a queue (FIFO) or deque.
+
+```rust
+use std::collections::VecDeque;
+
+fn main() {
+    let mut deque: VecDeque<i32> = VecDeque::new();
+
+    // Push to back (like a queue)
+    deque.push_back(1);
+    deque.push_back(2);
+    deque.push_back(3);
+
+    // Push to front
+    deque.push_front(0);
+
+    println!("{:?}", deque); // [0, 1, 2, 3]
+
+    // Pop from front (FIFO queue behavior)
+    while let Some(val) = deque.pop_front() {
+        println!("Processing: {}", val);
+    }
+}
+```
+
+#### `BinaryHeap<T>` — Priority Queue
+
+`BinaryHeap` is a max-heap: the largest element is always at the top. Use it for priority queues, scheduling, and Dijkstra's algorithm.
+
+```rust
+use std::collections::BinaryHeap;
+
+fn main() {
+    let mut heap = BinaryHeap::new();
+    heap.push(3);
+    heap.push(1);
+    heap.push(4);
+    heap.push(1);
+    heap.push(5);
+
+    // Always pops the largest element first
+    while let Some(val) = heap.pop() {
+        print!("{} ", val); // 5 4 3 1 1
+    }
+    println!();
+}
+```
+
+---
+
+### `std::io` — Input and Output
+
+The `io` module defines the core I/O traits and types. Understanding it is essential for reading from files, stdin, network sockets, or any byte stream.
+
+#### The Core Traits: `Read`, `Write`, `BufRead`
+
+These traits are the abstraction layer for all I/O in Rust. Any type that implements `Read` can be read from; any type that implements `Write` can be written to. This is the power of trait-based design — the same code works with files, network sockets, in-memory buffers, and more.
+
+```rust
+use std::io::{self, Read, Write, BufRead, BufReader, BufWriter};
+
+fn main() -> io::Result<()> {
+    // Reading from stdin line by line
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        let line = line?; // propagate I/O errors
+        println!("You typed: {}", line);
+    }
+    Ok(())
+}
+```
+
+#### `BufReader` and `BufWriter` — Buffered I/O
+
+Raw `Read`/`Write` implementations may perform a system call for every byte. Buffering amortizes this cost by reading/writing in chunks. **Always use `BufReader`/`BufWriter` when doing line-by-line or small-chunk I/O.**
+
+```rust
+use std::fs::File;
+use std::io::{BufRead, BufReader, BufWriter, Write};
+
+fn copy_lines_uppercase(input_path: &str, output_path: &str) -> std::io::Result<()> {
+    let input = File::open(input_path)?;
+    let output = File::create(output_path)?;
+
+    // Wrap in buffers — this is the idiomatic pattern
+    let reader = BufReader::new(input);
+    let mut writer = BufWriter::new(output);
+
+    for line in reader.lines() {
+        let line = line?;
+        writeln!(writer, "{}", line.to_uppercase())?;
+    }
+
+    // BufWriter flushes on drop, but explicit flush is good practice
+    writer.flush()?;
+    Ok(())
+}
+```
+
+#### `std::io::Cursor` — In-Memory I/O
+
+`Cursor<T>` wraps an in-memory buffer and implements `Read`, `Write`, and `Seek`. It is invaluable for testing I/O code without touching the filesystem.
+
+```rust
+use std::io::{Cursor, Read, Write, Seek, SeekFrom};
+
+fn main() {
+    let mut cursor = Cursor::new(Vec::new());
+
+    // Write to the in-memory buffer
+    write!(cursor, "Hello, ").unwrap();
+    write!(cursor, "world!").unwrap();
+
+    // Seek back to the beginning
+    cursor.seek(SeekFrom::Start(0)).unwrap();
+
+    // Read it back
+    let mut contents = String::new();
+    cursor.read_to_string(&mut contents).unwrap();
+    println!("{}", contents); // Hello, world!
+}
+```
+
+---
+
+### `std::env` — Environment and Arguments
+
+The `env` module gives you access to the process environment: command-line arguments, environment variables, and the current working directory.
+
+```rust
+use std::env;
+
+fn main() {
+    // Command-line arguments — returns an iterator of Strings
+    let args: Vec<String> = env::args().collect();
+    println!("Program name: {}", args[0]);
+    if args.len() > 1 {
+        println!("First argument: {}", args[1]);
+    }
+
+    // Environment variables
+    match env::var("HOME") {
+        Ok(home) => println!("Home directory: {}", home),
+        Err(e) => println!("HOME not set: {}", e),
+    }
+
+    // With a default value
+    let log_level = env::var("LOG_LEVEL").unwrap_or_else(|_| String::from("info"));
+    println!("Log level: {}", log_level);
+
+    // Current working directory
+    let cwd = env::current_dir().expect("Cannot get current directory");
+    println!("Working directory: {}", cwd.display());
+
+    // Iterate all environment variables
+    for (key, value) in env::vars() {
+        if key.starts_with("CARGO") {
+            println!("{}={}", key, value);
+        }
+    }
+}
+```
+
+---
+
+### `std::path` — Cross-Platform File Paths
+
+Never manipulate file paths as raw strings. The `path` module provides `Path` (borrowed) and `PathBuf` (owned) types that handle path separators, extensions, and components correctly across Windows, macOS, and Linux.
+
+```rust
+use std::path::{Path, PathBuf};
+
+fn main() {
+    // PathBuf is the owned, mutable version (like String)
+    let mut path = PathBuf::from("/home/user");
+    path.push("projects");       // /home/user/projects
+    path.push("my_app");         // /home/user/projects/my_app
+    path.push("src/main.rs");    // /home/user/projects/my_app/src/main.rs
+
+    println!("{}", path.display());
+
+    // Path is the borrowed version (like &str)
+    let path: &Path = Path::new("/home/user/projects/my_app/src/main.rs");
+
+    // Decomposing paths
+    println!("File name:  {:?}", path.file_name());      // "main.rs"
+    println!("Extension:  {:?}", path.extension());      // "rs"
+    println!("Stem:       {:?}", path.file_stem());      // "main"
+    println!("Parent:     {:?}", path.parent());         // ".../src"
+    println!("Is absolute: {}", path.is_absolute());     // true
+
+    // Joining paths safely
+    let base = PathBuf::from("/etc");
+    let config = base.join("myapp").join("config.toml");
+    println!("Config path: {}", config.display()); // /etc/myapp/config.toml
+
+    // Checking existence (requires filesystem access)
+    if path.exists() {
+        println!("Path exists!");
+    }
+    if path.is_file() {
+        println!("It's a file");
+    }
+    if path.is_dir() {
+        println!("It's a directory");
+    }
+}
+```
+
+---
+
+### `std::fs` — File System Operations
+
+The `fs` module provides functions for reading, writing, creating, and deleting files and directories.
+
+```rust
+use std::fs;
+use std::io::Write;
+
+fn main() -> std::io::Result<()> {
+    // Read entire file to String (convenient but loads everything into memory)
+    let contents = fs::read_to_string("Cargo.toml")?;
+    println!("File has {} bytes", contents.len());
+
+    // Read entire file to bytes
+    let bytes = fs::read("Cargo.toml")?;
+    println!("File has {} bytes (as Vec<u8>)", bytes.len());
+
+    // Write a string to a file (creates or overwrites)
+    fs::write("output.txt", "Hello from Rust!
+")?;
+
+    // Append to a file using OpenOptions
+    use std::fs::OpenOptions;
+    let mut file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("output.txt")?;
+    writeln!(file, "Appended line")?;
+
+    // Create a directory (fails if it already exists)
+    fs::create_dir("my_dir")?;
+
+    // Create a directory and all parents (like mkdir -p)
+    fs::create_dir_all("a/b/c/d")?;
+
+    // List directory contents
+    for entry in fs::read_dir(".")? {
+        let entry = entry?;
+        let path = entry.path();
+        let metadata = entry.metadata()?;
+        println!(
+            "{:?} — {} bytes, is_dir: {}",
+            path.file_name().unwrap(),
+            metadata.len(),
+            metadata.is_dir()
+        );
+    }
+
+    // Copy a file
+    fs::copy("output.txt", "output_backup.txt")?;
+
+    // Rename / move a file
+    fs::rename("output_backup.txt", "output_moved.txt")?;
+
+    // Remove a file
+    fs::remove_file("output.txt")?;
+    fs::remove_file("output_moved.txt")?;
+
+    // Remove a directory (must be empty)
+    fs::remove_dir("my_dir")?;
+
+    // Remove a directory and all its contents (like rm -rf)
+    fs::remove_dir_all("a")?;
+
+    Ok(())
+}
+```
+
+---
+
+### `std::time` — Measuring Time
+
+The `time` module provides two key types: `Instant` for measuring elapsed time (monotonic clock, never goes backwards) and `SystemTime` for wall-clock time.
+
+```rust
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::thread;
+
+fn main() {
+    // ── Instant: measuring elapsed time ──────────────────────────────────
+    // Use this for benchmarking and timeouts — it is monotonic and reliable
+    let start = Instant::now();
+
+    // Simulate some work
+    thread::sleep(Duration::from_millis(50));
+
+    let elapsed = start.elapsed();
+    println!("Elapsed: {:.2?}", elapsed); // e.g., "Elapsed: 50.12ms"
+    println!("Elapsed millis: {}", elapsed.as_millis());
+    println!("Elapsed micros: {}", elapsed.as_micros());
+
+    // ── Duration arithmetic ───────────────────────────────────────────────
+    let d1 = Duration::from_secs(5);
+    let d2 = Duration::from_millis(500);
+    let total = d1 + d2;
+    println!("Total: {:?}", total); // 5.5s
+
+    // ── SystemTime: wall-clock time ───────────────────────────────────────
+    // Use this when you need the actual date/time (e.g., timestamps in logs)
+    // Note: SystemTime can go backwards (NTP adjustments, etc.)
+    let now = SystemTime::now();
+    let since_epoch = now
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+    println!("Unix timestamp: {} seconds", since_epoch.as_secs());
+
+    // For human-readable dates, use the `chrono` or `time` crates
+    // std::time intentionally does not provide date formatting
+}
+```
+
+---
+
+### `std::sync` — Shared State Across Threads
+
+The `sync` module provides the primitives for safe concurrent programming. These types enforce Rust's thread-safety guarantees at compile time.
+
+```rust
+use std::sync::{Arc, Mutex, RwLock};
+use std::thread;
+
+fn main() {
+    // ── Arc<T>: Atomically Reference Counted pointer ──────────────────────
+    // Use Arc when you need to share ownership across threads
+    // (Rc<T> is the single-threaded version — it is NOT Send)
+    let shared_data = Arc::new(vec![1, 2, 3, 4, 5]);
+
+    let handles: Vec<_> = (0..3).map(|i| {
+        let data = Arc::clone(&shared_data); // cheap clone — just increments a counter
+        thread::spawn(move || {
+            println!("Thread {}: sum = {}", i, data.iter().sum::<i32>());
+        })
+    }).collect();
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    // ── Mutex<T>: Mutual Exclusion ────────────────────────────────────────
+    // Mutex wraps data and ensures only one thread can access it at a time
+    // The data is INSIDE the Mutex — you cannot access it without locking
+    let counter = Arc::new(Mutex::new(0u32));
+
+    let handles: Vec<_> = (0..10).map(|_| {
+        let counter = Arc::clone(&counter);
+        thread::spawn(move || {
+            let mut guard = counter.lock().unwrap(); // blocks until lock is acquired
+            *guard += 1;
+            // guard is dropped here, releasing the lock automatically
+        })
+    }).collect();
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    println!("Final counter: {}", *counter.lock().unwrap()); // 10
+
+    // ── RwLock<T>: Multiple Readers OR One Writer ─────────────────────────
+    // More efficient than Mutex when reads are frequent and writes are rare
+    let config = Arc::new(RwLock::new(String::from("initial config")));
+
+    // Multiple threads can read simultaneously
+    let config_reader = Arc::clone(&config);
+    let reader = thread::spawn(move || {
+        let guard = config_reader.read().unwrap(); // shared read lock
+        println!("Config: {}", *guard);
+    });
+
+    // Only one thread can write at a time
+    let config_writer = Arc::clone(&config);
+    let writer = thread::spawn(move || {
+        let mut guard = config_writer.write().unwrap(); // exclusive write lock
+        *guard = String::from("updated config");
+    });
+
+    reader.join().unwrap();
+    writer.join().unwrap();
+}
+```
+
+#### Atomic Types — Lock-Free Primitives
+
+For simple numeric counters and flags, atomic types are faster than `Mutex` because they use CPU-level atomic instructions instead of OS-level locks.
+
+```rust
+use std::sync::atomic::{AtomicU64, AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread;
+
+fn main() {
+    // AtomicU64: a thread-safe u64 counter
+    let request_count = Arc::new(AtomicU64::new(0));
+
+    let handles: Vec<_> = (0..100).map(|_| {
+        let count = Arc::clone(&request_count);
+        thread::spawn(move || {
+            // fetch_add atomically adds 1 and returns the old value
+            count.fetch_add(1, Ordering::Relaxed);
+        })
+    }).collect();
+
+    for h in handles { h.join().unwrap(); }
+    println!("Requests: {}", request_count.load(Ordering::Relaxed)); // 100
+
+    // AtomicBool: a thread-safe flag (e.g., shutdown signal)
+    let running = Arc::new(AtomicBool::new(true));
+    let r = Arc::clone(&running);
+
+    let worker = thread::spawn(move || {
+        while r.load(Ordering::Acquire) {
+            // do work...
+            thread::sleep(std::time::Duration::from_millis(10));
+        }
+        println!("Worker shutting down");
+    });
+
+    thread::sleep(std::time::Duration::from_millis(50));
+    running.store(false, Ordering::Release); // signal the worker to stop
+    worker.join().unwrap();
+}
+```
+
+> 💡 **Ordering explained simply:**
+> - `Relaxed` — no ordering guarantees, just atomicity. Use for counters where order doesn't matter.
+> - `Acquire` / `Release` — pairs that establish a happens-before relationship. Use for flags and signals.
+> - `SeqCst` — strongest guarantee, total sequential consistency. Use when in doubt, optimize later.
+
+---
+
+### `std::thread` — OS Threads
+
+```rust
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    // Spawn a thread — the closure runs in a new OS thread
+    let handle = thread::spawn(|| {
+        for i in 1..=5 {
+            println!("Worker thread: {}", i);
+            thread::sleep(Duration::from_millis(10));
+        }
+    });
+
+    // Main thread continues running concurrently
+    for i in 1..=3 {
+        println!("Main thread: {}", i);
+        thread::sleep(Duration::from_millis(15));
+    }
+
+    // Wait for the spawned thread to finish
+    // join() returns Result<T, Box<dyn Any>> where T is the closure's return value
+    handle.join().expect("Thread panicked");
+
+    // Thread-local storage — each thread has its own copy
+    thread_local! {
+        static THREAD_ID: std::cell::RefCell<u32> = RefCell::new(0);
+    }
+
+    THREAD_ID.with(|id| {
+        *id.borrow_mut() = 42;
+        println!("This thread's ID: {}", id.borrow());
+    });
+
+    // Getting the current thread's name
+    let current = thread::current();
+    println!("Current thread name: {:?}", current.name());
+
+    // Spawning a named thread (useful for debugging)
+    let handle = thread::Builder::new()
+        .name(String::from("my-worker"))
+        .stack_size(4 * 1024 * 1024) // 4 MB stack
+        .spawn(|| {
+            println!("Named thread: {:?}", thread::current().name());
+        })
+        .expect("Failed to spawn thread");
+
+    handle.join().unwrap();
+}
+```
+
+---
+
+### `std::process` — Process Control
+
+```rust
+use std::process::{self, Command, Stdio};
+
+fn main() {
+    // Exit the process with a specific code
+    // process::exit(0); // 0 = success, non-zero = error
+
+    // Spawn a child process
+    let output = Command::new("echo")
+        .arg("Hello from a child process")
+        .output() // captures stdout and stderr
+        .expect("Failed to run echo");
+
+    println!("Status: {}", output.status);
+    println!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+
+    // Pipe stdin/stdout for interactive processes
+    let mut child = Command::new("cat")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn cat");
+
+    // Write to child's stdin
+    use std::io::Write;
+    if let Some(stdin) = child.stdin.as_mut() {
+        stdin.write_all(b"Hello, cat!
+").unwrap();
+    }
+
+    // Read child's stdout
+    let output = child.wait_with_output().unwrap();
+    println!("Cat said: {}", String::from_utf8_lossy(&output.stdout));
+
+    // Check if a command succeeded
+    let status = Command::new("ls")
+        .arg("/nonexistent")
+        .status()
+        .expect("Failed to run ls");
+
+    if !status.success() {
+        println!("Command failed with code: {:?}", status.code());
+    }
+}
+```
+
+---
+
+### `std::fmt` — Formatting and Display
+
+The `fmt` module defines the traits that power Rust's formatting system (`println!`, `format!`, `write!`). Implementing these traits on your types is essential for debugging and user-facing output.
+
+```rust
+use std::fmt;
+
+struct Matrix {
+    data: [[f64; 2]; 2],
+}
+
+// Display: human-readable output (used by {} in format strings)
+impl fmt::Display for Matrix {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "| {:.2}  {:.2} |
+| {:.2}  {:.2} |",
+            self.data[0][0], self.data[0][1],
+            self.data[1][0], self.data[1][1]
+        )
+    }
+}
+
+// Debug: developer-facing output (used by {:?} and {:#?})
+impl fmt::Debug for Matrix {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Matrix")
+            .field("row0", &self.data[0])
+            .field("row1", &self.data[1])
+            .finish()
+    }
+}
+
+// LowerHex: custom format specifier (used by {:x})
+impl fmt::LowerHex for Matrix {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for row in &self.data {
+            for val in row {
+                write!(f, "{:x} ", *val as u64)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+fn main() {
+    let m = Matrix { data: [[1.5, 2.3], [4.7, 8.1]] };
+
+    println!("Display:
+{}", m);
+    println!("Debug: {:?}", m);
+    println!("Pretty Debug:
+{:#?}", m);
+    println!("Hex: {:x}", m);
+
+    // Formatting numbers
+    let n = 42_u32;
+    println!("Decimal:     {:10}", n);    // right-aligned, width 10
+    println!("Left-align:  {:<10}", n);   // left-aligned
+    println!("Zero-padded: {:010}", n);   // zero-padded
+    println!("Binary:      {:08b}", n);   // binary with 8 digits
+    println!("Hex:         {:08x}", n);   // hex with 8 digits
+    println!("Octal:       {:o}", n);     // octal
+
+    let f = 3.14159_f64;
+    println!("Float:       {:.2}", f);    // 2 decimal places
+    println!("Scientific:  {:e}", f);     // scientific notation
+    println!("Width+prec:  {:10.3}", f);  // width 10, 3 decimal places
+}
+```
+
+---
+
+### `std::convert` — Type Conversions
+
+Rust has a principled system for type conversions. Understanding these traits is key to writing generic, ergonomic APIs.
+
+```rust
+use std::convert::{TryFrom, TryInto};
+
+// From<T>: infallible conversion FROM another type
+// Implementing From automatically gives you Into for free
+#[derive(Debug)]
+struct Celsius(f64);
+
+#[derive(Debug)]
+struct Fahrenheit(f64);
+
+impl From<Celsius> for Fahrenheit {
+    fn from(c: Celsius) -> Self {
+        Fahrenheit(c.0 * 9.0 / 5.0 + 32.0)
+    }
+}
+
+// TryFrom<T>: fallible conversion (returns Result)
+// Use when the conversion can fail
+#[derive(Debug)]
+struct EvenNumber(i32);
+
+impl TryFrom<i32> for EvenNumber {
+    type Error = String;
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        if value % 2 == 0 {
+            Ok(EvenNumber(value))
+        } else {
+            Err(format!("{} is not even", value))
+        }
+    }
+}
+
+fn main() {
+    // From / Into
+    let boiling = Celsius(100.0);
+    let f: Fahrenheit = boiling.into(); // uses the From impl we defined
+    println!("100°C = {:?}", f); // Fahrenheit(212.0)
+
+    let freezing = Fahrenheit::from(Celsius(0.0));
+    println!("0°C = {:?}", freezing); // Fahrenheit(32.0)
+
+    // TryFrom / TryInto
+    let even = EvenNumber::try_from(4);
+    println!("{:?}", even); // Ok(EvenNumber(4))
+
+    let odd = EvenNumber::try_from(3);
+    println!("{:?}", odd); // Err("3 is not even")
+
+    // TryInto (the mirror of TryFrom)
+    let result: Result<EvenNumber, _> = 6_i32.try_into();
+    println!("{:?}", result); // Ok(EvenNumber(6))
+
+    // AsRef / AsMut: cheap reference conversions
+    // These are used extensively in function signatures to accept multiple types
+    fn print_length(s: impl AsRef<str>) {
+        println!("Length: {}", s.as_ref().len());
+    }
+
+    print_length("a string slice");       // &str
+    print_length(String::from("owned"));  // String
+    // Both work because both implement AsRef<str>
+}
+```
+
+---
+
+### `std::mem` — Memory Utilities
+
+The `mem` module provides utilities for working with memory directly. These are used in systems programming, data structure implementation, and performance optimization.
+
+```rust
+use std::mem;
+
+fn main() {
+    // size_of: get the size of a type in bytes at compile time
+    println!("bool:    {} bytes", mem::size_of::<bool>());    // 1
+    println!("i32:     {} bytes", mem::size_of::<i32>());     // 4
+    println!("f64:     {} bytes", mem::size_of::<f64>());     // 8
+    println!("String:  {} bytes", mem::size_of::<String>());  // 24 (ptr + len + cap)
+    println!("Vec<i32>:{} bytes", mem::size_of::<Vec<i32>>()); // 24
+
+    // swap: exchange the values of two variables
+    let mut a = 10;
+    let mut b = 20;
+    mem::swap(&mut a, &mut b);
+    println!("a={}, b={}", a, b); // a=20, b=10
+
+    // replace: replace a value and return the old one
+    let mut name = String::from("Alice");
+    let old_name = mem::replace(&mut name, String::from("Bob"));
+    println!("Old: {}, New: {}", old_name, name); // Old: Alice, New: Bob
+
+    // take: replace a value with its Default and return the old value
+    // Equivalent to replace(dest, Default::default())
+    let mut data = vec![1, 2, 3];
+    let taken = mem::take(&mut data);
+    println!("Taken: {:?}", taken); // [1, 2, 3]
+    println!("Original is now: {:?}", data); // []
+
+    // transmute: reinterpret the bits of a value as a different type
+    // This is UNSAFE and should be used very rarely
+    unsafe {
+        let bits: u32 = 0x3F800000; // IEEE 754 representation of 1.0f32
+        let float: f32 = mem::transmute(bits);
+        println!("Transmuted: {}", float); // 1.0
+    }
+}
+```
+
+---
+
+### `std::cmp` — Comparison and Ordering
+
+```rust
+use std::cmp::{self, Ordering};
+
+fn main() {
+    // Basic comparison functions
+    println!("{}", cmp::min(3, 7));    // 3
+    println!("{}", cmp::max(3, 7));    // 7
+    println!("{}", cmp::clamp(15, 0, 10)); // 10 (clamps to range [0, 10])
+
+    // Ordering enum: Less, Equal, Greater
+    let result = 5_i32.cmp(&10);
+    match result {
+        Ordering::Less    => println!("5 < 10"),
+        Ordering::Equal   => println!("5 == 10"),
+        Ordering::Greater => println!("5 > 10"),
+    }
+
+    // Implementing custom ordering
+    #[derive(Debug, Eq, PartialEq)]
+    struct Student {
+        name: String,
+        gpa: u32, // stored as integer * 100 (e.g., 395 = 3.95)
+    }
+
+    impl Ord for Student {
+        fn cmp(&self, other: &Self) -> Ordering {
+            // Sort by GPA descending, then by name ascending
+            other.gpa.cmp(&self.gpa)
+                .then_with(|| self.name.cmp(&other.name))
+        }
+    }
+
+    impl PartialOrd for Student {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
+    }
+
+    let mut students = vec![
+        Student { name: "Charlie".into(), gpa: 380 },
+        Student { name: "Alice".into(),   gpa: 395 },
+        Student { name: "Bob".into(),     gpa: 395 },
+    ];
+
+    students.sort();
+    for s in &students {
+        println!("{}: {:.2}", s.name, s.gpa as f64 / 100.0);
+    }
+    // Alice: 3.95, Bob: 3.95, Charlie: 3.80
+}
+```
+
+---
+
+### `std::num` — Numeric Operations
+
+Rust's numeric types have rich method sets built directly into the language. Understanding these prevents common bugs like integer overflow.
+
+```rust
+fn main() {
+    // ── Integer methods ───────────────────────────────────────────────────
+    let x: i32 = -42;
+    println!("abs:      {}", x.abs());          // 42
+    println!("pow:      {}", 2_i32.pow(10));    // 1024
+    println!("min:      {}", 5_i32.min(3));     // 3
+    println!("max:      {}", 5_i32.max(3));     // 5
+    println!("clamp:    {}", 15_i32.clamp(0, 10)); // 10
+
+    // Checked arithmetic — returns None on overflow
+    let big: i32 = i32::MAX;
+    println!("checked_add: {:?}", big.checked_add(1)); // None
+    println!("checked_mul: {:?}", 100_i32.checked_mul(200)); // Some(20000)
+
+    // Saturating arithmetic — clamps to min/max on overflow
+    println!("saturating_add: {}", big.saturating_add(1)); // 2147483647 (i32::MAX)
+
+    // Wrapping arithmetic — wraps around on overflow (like C)
+    println!("wrapping_add: {}", big.wrapping_add(1)); // -2147483648 (i32::MIN)
+
+    // Overflowing arithmetic — returns (result, did_overflow)
+    let (result, overflowed) = big.overflowing_add(1);
+    println!("overflowing_add: {} (overflowed: {})", result, overflowed);
+
+    // Bit manipulation
+    let n: u8 = 0b1010_1010;
+    println!("count_ones:    {}", n.count_ones());    // 4
+    println!("count_zeros:   {}", n.count_zeros());   // 4
+    println!("leading_zeros: {}", n.leading_zeros()); // 0
+    println!("trailing_zeros:{}", n.trailing_zeros()); // 1
+    println!("reverse_bits:  {:08b}", n.reverse_bits()); // 01010101
+
+    // ── Float methods ─────────────────────────────────────────────────────
+    let f: f64 = -3.7;
+    println!("abs:   {}", f.abs());    // 3.7
+    println!("ceil:  {}", f.ceil());   // -3.0
+    println!("floor: {}", f.floor());  // -4.0
+    println!("round: {}", f.round());  // -4.0
+    println!("sqrt:  {}", 2.0_f64.sqrt()); // 1.4142...
+    println!("powi:  {}", 2.0_f64.powi(10)); // 1024.0
+    println!("ln:    {}", std::f64::consts::E.ln()); // 1.0
+    println!("log2:  {}", 1024.0_f64.log2()); // 10.0
+    println!("sin:   {:.4}", std::f64::consts::PI.sin()); // ~0.0
+    println!("is_nan:{}", f64::NAN.is_nan()); // true
+    println!("is_inf:{}", f64::INFINITY.is_infinite()); // true
+
+    // Constants
+    println!("PI:    {}", std::f64::consts::PI);
+    println!("E:     {}", std::f64::consts::E);
+    println!("SQRT2: {}", std::f64::consts::SQRT_2);
+    println!("i32::MAX: {}", i32::MAX);
+    println!("i32::MIN: {}", i32::MIN);
+    println!("u64::MAX: {}", u64::MAX);
+}
+```
+
+---
+
+### `std::str` and `std::string` — String Operations
+
+Rust has two string types: `&str` (borrowed string slice) and `String` (owned, heap-allocated). Understanding the difference and the rich set of methods on both is essential.
+
+```rust
+fn main() {
+    // ── &str methods ──────────────────────────────────────────────────────
+    let s = "  Hello, World!  ";
+
+    println!("trim:        '{}'", s.trim());           // "Hello, World!"
+    println!("trim_start:  '{}'", s.trim_start());     // "Hello, World!  "
+    println!("to_uppercase: {}", s.to_uppercase());
+    println!("to_lowercase: {}", s.to_lowercase());
+    println!("contains:    {}", s.contains("World"));   // true
+    println!("starts_with: {}", s.starts_with("  H"));  // true
+    println!("ends_with:   {}", s.ends_with("!  "));    // true
+    println!("len:         {}", s.len());                // byte length
+    println!("is_empty:    {}", s.is_empty());           // false
+
+    // Splitting
+    let csv = "one,two,three,four";
+    let parts: Vec<&str> = csv.split(',').collect();
+    println!("split: {:?}", parts); // ["one", "two", "three", "four"]
+
+    let words: Vec<&str> = "  hello   world  ".split_whitespace().collect();
+    println!("split_whitespace: {:?}", words); // ["hello", "world"]
+
+    // splitn: split at most n times
+    let parts: Vec<&str> = "a:b:c:d".splitn(3, ':').collect();
+    println!("splitn(3): {:?}", parts); // ["a", "b", "c:d"]
+
+    // Replacing
+    let replaced = "foo bar foo".replace("foo", "baz");
+    println!("replace: {}", replaced); // "baz bar baz"
+
+    let replaced_once = "foo bar foo".replacen("foo", "baz", 1);
+    println!("replacen(1): {}", replaced_once); // "baz bar foo"
+
+    // Parsing — &str can be parsed into any type that implements FromStr
+    let n: i32 = "42".parse().expect("Not a number");
+    let f: f64 = "3.14".parse().expect("Not a float");
+    let b: bool = "true".parse().expect("Not a bool");
+    println!("Parsed: {} {} {}", n, f, b);
+
+    // Char operations
+    let s = "Hello, 世界!";
+    println!("char count: {}", s.chars().count()); // 10 (not bytes!)
+    println!("byte count: {}", s.len());            // 14 (UTF-8 bytes)
+
+    for (i, c) in s.char_indices() {
+        print!("[{}:{}] ", i, c);
+    }
+    println!();
+
+    // ── String methods ────────────────────────────────────────────────────
+    let mut owned = String::from("Hello");
+    owned.push(' ');           // push a char
+    owned.push_str("World");   // push a &str
+    owned += "!";              // += operator (takes ownership of RHS)
+
+    println!("{}", owned); // "Hello World!"
+
+    // String::new() creates an empty string
+    let mut s = String::new();
+    s.push_str("built ");
+    s.push_str("incrementally");
+    println!("{}", s);
+
+    // String::with_capacity: pre-allocate to avoid reallocations
+    let mut s = String::with_capacity(100);
+    for i in 0..10 {
+        s.push_str(&i.to_string());
+        s.push(',');
+    }
+    println!("{}", s);
+
+    // Converting between String and &str
+    let owned: String = String::from("hello");
+    let borrowed: &str = &owned;       // deref coercion
+    let borrowed: &str = owned.as_str(); // explicit
+    let owned2: String = borrowed.to_string(); // or borrowed.to_owned()
+    let owned3: String = borrowed.to_owned();
+
+    // format! macro — the most flexible way to build strings
+    let name = "Alice";
+    let age = 30;
+    let greeting = format!("Hello, {}! You are {} years old.", name, age);
+    println!("{}", greeting);
+}
+```
+
+---
+
+### `std::iter` — The Iterator Ecosystem
+
+The iterator system is one of Rust's most powerful features. The `Iterator` trait has dozens of adapter methods that let you express complex data transformations as readable, zero-cost pipelines.
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    // ── Transforming ──────────────────────────────────────────────────────
+    let doubled: Vec<i32> = numbers.iter().map(|&x| x * 2).collect();
+    println!("doubled: {:?}", doubled);
+
+    // ── Filtering ─────────────────────────────────────────────────────────
+    let evens: Vec<&i32> = numbers.iter().filter(|&&x| x % 2 == 0).collect();
+    println!("evens: {:?}", evens);
+
+    // ── Chaining ──────────────────────────────────────────────────────────
+    let result: Vec<i32> = numbers.iter()
+        .filter(|&&x| x % 2 == 0)   // keep evens: [2, 4, 6, 8, 10]
+        .map(|&x| x * x)             // square them: [4, 16, 36, 64, 100]
+        .take(3)                      // take first 3: [4, 16, 36]
+        .collect();
+    println!("chain result: {:?}", result);
+
+    // ── Reducing ──────────────────────────────────────────────────────────
+    let sum: i32 = numbers.iter().sum();
+    let product: i32 = numbers.iter().product();
+    let max = numbers.iter().max().unwrap();
+    let min = numbers.iter().min().unwrap();
+    println!("sum={}, product={}, max={}, min={}", sum, product, max, min);
+
+    // fold: general reduction with an accumulator
+    let sum = numbers.iter().fold(0, |acc, &x| acc + x);
+    println!("fold sum: {}", sum);
+
+    // ── Searching ─────────────────────────────────────────────────────────
+    let found = numbers.iter().find(|&&x| x > 5);
+    println!("first > 5: {:?}", found); // Some(6)
+
+    let position = numbers.iter().position(|&x| x == 7);
+    println!("position of 7: {:?}", position); // Some(6)
+
+    let any_negative = numbers.iter().any(|&x| x < 0);
+    let all_positive = numbers.iter().all(|&x| x > 0);
+    println!("any_negative: {}, all_positive: {}", any_negative, all_positive);
+
+    // ── Flattening ────────────────────────────────────────────────────────
+    let nested = vec![vec![1, 2], vec![3, 4], vec![5, 6]];
+    let flat: Vec<i32> = nested.into_iter().flatten().collect();
+    println!("flattened: {:?}", flat); // [1, 2, 3, 4, 5, 6]
+
+    // flat_map: map then flatten in one step
+    let words = vec!["hello world", "foo bar"];
+    let chars: Vec<&str> = words.iter()
+        .flat_map(|s| s.split_whitespace())
+        .collect();
+    println!("flat_map: {:?}", chars); // ["hello", "world", "foo", "bar"]
+
+    // ── Zipping ───────────────────────────────────────────────────────────
+    let names = vec!["Alice", "Bob", "Charlie"];
+    let scores = vec![95, 87, 92];
+    let paired: Vec<(&&str, &i32)> = names.iter().zip(scores.iter()).collect();
+    println!("zipped: {:?}", paired);
+
+    // ── Enumerating ───────────────────────────────────────────────────────
+    for (i, name) in names.iter().enumerate() {
+        println!("{}: {}", i, name);
+    }
+
+    // ── Chaining iterators ────────────────────────────────────────────────
+    let a = vec![1, 2, 3];
+    let b = vec![4, 5, 6];
+    let chained: Vec<&i32> = a.iter().chain(b.iter()).collect();
+    println!("chained: {:?}", chained); // [1, 2, 3, 4, 5, 6]
+
+    // ── Collecting into different types ───────────────────────────────────
+    use std::collections::{HashMap, HashSet};
+
+    let map: HashMap<&str, i32> = names.iter()
+        .copied()
+        .zip(scores.iter().copied())
+        .collect();
+    println!("as HashMap: {:?}", map);
+
+    let unique: HashSet<i32> = vec![1, 2, 2, 3, 3, 3].into_iter().collect();
+    println!("as HashSet: {:?}", unique); // {1, 2, 3}
+
+    // ── Creating iterators ────────────────────────────────────────────────
+    // Range iterators
+    let squares: Vec<i32> = (1..=5).map(|x| x * x).collect();
+    println!("squares: {:?}", squares); // [1, 4, 9, 16, 25]
+
+    // repeat and take
+    let zeros: Vec<i32> = std::iter::repeat(0).take(5).collect();
+    println!("zeros: {:?}", zeros); // [0, 0, 0, 0, 0]
+
+    // once: a single-element iterator
+    let single: Vec<i32> = std::iter::once(42).collect();
+    println!("once: {:?}", single); // [42]
+
+    // successors: generate a sequence
+    let powers_of_2: Vec<u32> = std::iter::successors(Some(1_u32), |&n| n.checked_mul(2))
+        .take(10)
+        .collect();
+    println!("powers of 2: {:?}", powers_of_2);
+}
+```
+
+---
+
+### `std::error` — The Error Trait
+
+The `Error` trait is the foundation of Rust's error handling ecosystem. Any type that implements `Error` can be used as a boxed error (`Box<dyn Error>`), enabling flexible error propagation.
+
+```rust
+use std::error::Error;
+use std::fmt;
+
+// Defining a custom error type
+#[derive(Debug)]
+enum AppError {
+    NotFound(String),
+    ParseError { input: String, reason: String },
+    IoError(std::io::Error),
+}
+
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AppError::NotFound(key) =>
+                write!(f, "Key not found: {}", key),
+            AppError::ParseError { input, reason } =>
+                write!(f, "Failed to parse '{}': {}", input, reason),
+            AppError::IoError(e) =>
+                write!(f, "I/O error: {}", e),
+        }
+    }
+}
+
+impl Error for AppError {
+    // source() returns the underlying cause, enabling error chaining
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            AppError::IoError(e) => Some(e),
+            _ => None,
+        }
+    }
+}
+
+// Automatic conversion from std::io::Error to AppError
+impl From<std::io::Error> for AppError {
+    fn from(e: std::io::Error) -> Self {
+        AppError::IoError(e)
+    }
+}
+
+fn read_config(path: &str) -> Result<String, AppError> {
+    // The ? operator uses From to convert io::Error to AppError automatically
+    let contents = std::fs::read_to_string(path)?;
+    Ok(contents)
+}
+
+fn main() {
+    match read_config("config.toml") {
+        Ok(contents) => println!("Config: {}", contents),
+        Err(e) => {
+            println!("Error: {}", e);
+            // Walk the error chain
+            let mut source = e.source();
+            while let Some(cause) = source {
+                println!("  Caused by: {}", cause);
+                source = cause.source();
+            }
+        }
+    }
+
+    // Using Box<dyn Error> for flexible error handling
+    // This accepts ANY error type — useful in main() and quick scripts
+    fn flexible() -> Result<(), Box<dyn Error>> {
+        let _n: i32 = "not a number".parse()?; // ParseIntError
+        let _f = std::fs::read_to_string("missing.txt")?; // io::Error
+        Ok(())
+    }
+
+    if let Err(e) = flexible() {
+        println!("Flexible error: {}", e);
+    }
+}
+```
+
+---
+
+### `std::marker` — Type System Markers
+
+Marker traits are traits with no methods — they exist purely to communicate properties to the compiler.
+
+| Marker Trait | Meaning |
+|---|---|
+| `Send` | The type can be transferred to another thread |
+| `Sync` | The type can be shared between threads via `&T` |
+| `Copy` | The type is copied on assignment (not moved) |
+| `Sized` | The type has a known size at compile time |
+| `Unpin` | The type can be safely moved after being pinned |
+
+```rust
+use std::marker::PhantomData;
+
+// PhantomData: tells the compiler a type "uses" a generic parameter
+// without actually storing it. Used for type-level state machines,
+// variance annotations, and lifetime markers.
+
+struct TypedId<T> {
+    id: u64,
+    _phantom: PhantomData<T>, // zero-size, no runtime cost
+}
+
+struct User;
+struct Product;
+
+impl<T> TypedId<T> {
+    fn new(id: u64) -> Self {
+        TypedId { id, _phantom: PhantomData }
+    }
+    fn value(&self) -> u64 {
+        self.id
+    }
+}
+
+fn main() {
+    let user_id: TypedId<User> = TypedId::new(1);
+    let product_id: TypedId<Product> = TypedId::new(1);
+
+    // These are different types even though the id is the same!
+    // This prevents accidentally passing a user ID where a product ID is expected
+    println!("User ID: {}", user_id.value());
+    println!("Product ID: {}", product_id.value());
+
+    // This would be a compile error:
+    // let wrong: TypedId<User> = product_id; // type mismatch!
+}
+```
+
+---
+
+### Mini-Project 2: `stdexplorer` — A Standard Library Showcase CLI
+
+Build a small CLI tool that demonstrates several `std` modules working together. This project reinforces the concepts from this section by using them in a realistic context.
+
+**What it does:** Accepts a command-line argument specifying a "task" and performs it using only the standard library.
+
+```rust
+// src/main.rs
+use std::collections::HashMap;
+use std::env;
+use std::fs;
+use std::io::{self, BufRead, Write};
+use std::path::PathBuf;
+use std::time::Instant;
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        eprintln!("Usage: {} <command> [args...]", args[0]);
+        eprintln!("Commands: wordcount <file>, env, timer, stats <file>");
+        std::process::exit(1);
+    }
+
+    let result = match args[1].as_str() {
+        "wordcount" => cmd_wordcount(&args),
+        "env"       => cmd_env(),
+        "timer"     => cmd_timer(&args),
+        "stats"     => cmd_stats(&args),
+        unknown     => Err(format!("Unknown command: {}", unknown)),
+    };
+
+    if let Err(e) = result {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+fn cmd_wordcount(args: &[String]) -> Result<(), String> {
+    let path = args.get(2).ok_or("Usage: wordcount <file>")?;
+    let file = fs::File::open(path).map_err(|e| e.to_string())?;
+    let reader = io::BufReader::new(file);
+
+    let mut word_freq: HashMap<String, usize> = HashMap::new();
+    let mut line_count = 0usize;
+    let mut char_count = 0usize;
+
+    for line in reader.lines() {
+        let line = line.map_err(|e| e.to_string())?;
+        line_count += 1;
+        char_count += line.chars().count();
+        for word in line.split_whitespace() {
+            let word = word.to_lowercase();
+            let word = word.trim_matches(|c: char| !c.is_alphabetic());
+            if !word.is_empty() {
+                *word_freq.entry(word.to_string()).or_insert(0) += 1;
+            }
+        }
+    }
+
+    println!("Lines:      {}", line_count);
+    println!("Words:      {}", word_freq.values().sum::<usize>());
+    println!("Unique:     {}", word_freq.len());
+    println!("Characters: {}", char_count);
+
+    // Top 10 most frequent words
+    let mut sorted: Vec<(&String, &usize)> = word_freq.iter().collect();
+    sorted.sort_by(|a, b| b.1.cmp(a.1));
+    println!("
+Top 10 words:");
+    for (word, count) in sorted.iter().take(10) {
+        println!("  {:20} {}", word, count);
+    }
+
+    Ok(())
+}
+
+fn cmd_env() -> Result<(), String> {
+    let mut vars: Vec<(String, String)> = env::vars().collect();
+    vars.sort_by(|a, b| a.0.cmp(&b.0));
+    for (key, value) in &vars {
+        println!("{}={}", key, value);
+    }
+    println!("
+Total: {} variables", vars.len());
+    Ok(())
+}
+
+fn cmd_timer(args: &[String]) -> Result<(), String> {
+    let iterations: u64 = args.get(2)
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1_000_000);
+
+    let start = Instant::now();
+    let mut sum = 0u64;
+    for i in 0..iterations {
+        sum = sum.wrapping_add(i);
+    }
+    let elapsed = start.elapsed();
+
+    println!("Computed sum of 0..{}: {}", iterations, sum);
+    println!("Time: {:.3?}", elapsed);
+    println!("Rate: {:.0} iterations/sec",
+        iterations as f64 / elapsed.as_secs_f64());
+    Ok(())
+}
+
+fn cmd_stats(args: &[String]) -> Result<(), String> {
+    let path_str = args.get(2).ok_or("Usage: stats <directory>")?;
+    let path = PathBuf::from(path_str);
+
+    if !path.is_dir() {
+        return Err(format!("{} is not a directory", path_str));
+    }
+
+    let mut file_count = 0usize;
+    let mut dir_count = 0usize;
+    let mut total_bytes = 0u64;
+    let mut ext_counts: HashMap<String, usize> = HashMap::new();
+
+    for entry in fs::read_dir(&path).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let meta = entry.metadata().map_err(|e| e.to_string())?;
+
+        if meta.is_dir() {
+            dir_count += 1;
+        } else {
+            file_count += 1;
+            total_bytes += meta.len();
+            if let Some(ext) = entry.path().extension() {
+                *ext_counts.entry(ext.to_string_lossy().to_string()).or_insert(0) += 1;
+            }
+        }
+    }
+
+    println!("Directory: {}", path.display());
+    println!("Files:     {}", file_count);
+    println!("Dirs:      {}", dir_count);
+    println!("Total:     {} bytes ({:.1} KB)", total_bytes, total_bytes as f64 / 1024.0);
+
+    if !ext_counts.is_empty() {
+        let mut exts: Vec<_> = ext_counts.iter().collect();
+        exts.sort_by(|a, b| b.1.cmp(a.1));
+        println!("
+File types:");
+        for (ext, count) in exts {
+            println!("  .{:15} {}", ext, count);
+        }
+    }
+
+    Ok(())
+}
+```
+
+**What this project exercises:**
+- `std::env` — argument parsing and environment variable listing
+- `std::fs` — file reading and directory traversal
+- `std::io` — buffered reading, `BufReader`, `lines()`
+- `std::collections::HashMap` — word frequency counting, extension counting
+- `std::time::Instant` — performance measurement
+- `std::path::PathBuf` — cross-platform path handling
+- `std::process` — exit codes
+- Error propagation with `?` and `map_err`
+
+[Back to Top](#table-of-contents)
+
+---
+
+## Section 3: Ownership, Borrowing & Lifetimes
 
 ### The Core Problem Rust Solves
 
@@ -697,7 +2257,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 3: Structs, Enums & Pattern Matching
+## Section 4: Structs, Enums & Pattern Matching
 
 ### Structs: Building Custom Data Types
 
@@ -1092,7 +2652,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 4: Smart Pointers & Interior Mutability
+## Section 5: Smart Pointers & Interior Mutability
 
 ### What Are Smart Pointers?
 
@@ -1424,7 +2984,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 5: Error Handling
+## Section 6: Error Handling
 
 ### Rust's Philosophy on Errors
 
@@ -1745,7 +3305,7 @@ Charlie,91.3,A";
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 6: Collections & Iterators
+## Section 7: Collections & Iterators
 
 ### The Standard Collections
 
@@ -2004,7 +3564,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 7: Traits & Generics
+## Section 8: Traits & Generics
 
 ### Traits: Defining Shared Behavior
 
@@ -2356,7 +3916,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 8: Object-Oriented Programming in Rust
+## Section 9: Object-Oriented Programming in Rust
 
 ### Rust Is Not Class-Based — But It *Can* Do OOP-Style Design
 If you come from Java/C#/C++, it’s natural to ask: *where are the classes?* Rust does **not** have classes, inheritance, or method overriding in the traditional sense. Instead, Rust provides building blocks that let you express the *useful parts* of object-oriented design without the long-term downsides that inheritance-heavy designs can create.
@@ -2462,7 +4022,7 @@ Requirements:
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 9: Closures & Functional Patterns
+## Section 10: Closures & Functional Patterns
 
 ### What Are Closures?
 
@@ -2671,7 +4231,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 10: Working with Files
+## Section 11: Working with Files
 
 ### File I/O in Rust: The Philosophy
 
@@ -3023,7 +4583,7 @@ fn main() -> io::Result<()> {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 11: Command Line Arguments (CLI)
+## Section 12: Command Line Arguments (CLI)
 
 ### The Philosophy of CLI Design
 A professional command-line tool is more than just a script; it is a user interface. In the world of systems programming, the CLI is the primary way automation, cloud infrastructure, and other developers interact with your software. 
@@ -3088,7 +4648,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 12: Terminal User Interfaces (TUI)
+## Section 13: Terminal User Interfaces (TUI)
 
 ### Moving Beyond Scrolling Text
 While a standard CLI prints text line-by-line, a **Terminal User Interface (TUI)** uses the terminal as a visual grid. Think of tools like `htop`, `vim`, or `lazygit`. These applications allow for layouts, colors, responsive design, and keyboard interactions.
@@ -3123,7 +4683,7 @@ A TUI application doesn't exit after printing. It runs in a loop, waiting for us
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 13: Modules, Crates & Workspaces
+## Section 14: Modules, Crates & Workspaces
 
 ### The Module System: Organizing Code
 
@@ -3360,7 +4920,7 @@ pub fn std_dev(data: &[f64]) -> Option<f64> {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 14: Building Reusable and Shared Libraries
+## Section 15: Building Reusable and Shared Libraries
 
 ### Why Libraries Matter
 As your Rust projects grow, you will inevitably find yourself writing the same utility functions, data structures, or domain logic in multiple places. The answer in Rust — as in most ecosystems — is to extract that code into a **library crate** that can be shared across projects. But Rust's library story goes further than most: the same tooling that lets you share code internally also lets you publish to the global **crates.io** registry, making your work available to the entire Rust community.
@@ -3612,7 +5172,7 @@ Run with `cargo test` — Cargo automatically discovers and runs all files in `t
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 15: Testing, Linting & Formatting
+## Section 16: Testing, Linting & Formatting
 
 ### The Philosophy of Testing in Rust
 
@@ -4193,7 +5753,7 @@ mod tests {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 16: Concurrency & Async Rust
+## Section 17: Concurrency & Async Rust
 
 ### Why Concurrency Is Hard (And How Rust Helps)
 
@@ -4451,7 +6011,7 @@ async fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 17: Macros
+## Section 18: Macros
 
 ### What Are Macros and Why Do They Exist?
 
@@ -4627,7 +6187,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 18: Unsafe Rust & FFI
+## Section 19: Unsafe Rust & FFI
 
 ### When and Why to Use Unsafe
 
@@ -4766,7 +6326,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 19: Design Patterns in Rust
+## Section 20: Design Patterns in Rust
 
 ### Why Design Patterns Look Different in Rust
 
@@ -5022,7 +6582,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 20: Performance & Profiling
+## Section 21: Performance & Profiling
 
 ### Rust's Performance Philosophy
 
@@ -5180,7 +6740,7 @@ fn main() {
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 21: Networking & Web
+## Section 22: Networking & Web
 
 ### TCP and UDP with std::net
 
@@ -5420,7 +6980,7 @@ async fn auth_middleware(
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
-## Section 22: Serde Deep Dive
+## Section 23: Serde Deep Dive
 
 ### What Is Serde?
 
