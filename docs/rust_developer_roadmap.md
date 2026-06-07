@@ -7,26 +7,28 @@
 ## Table of Contents
 
 1. [Getting Started with Rust](#section-1-getting-started-with-rust)
-2. [Ownership, Borrowing & Lifetimes](#section-2-ownership-borrowing--lifetimes)
-3. [Structs, Enums & Pattern Matching](#section-3-structs-enums--pattern-matching)
-4. [Smart Pointers & Interior Mutability](#section-4-smart-pointers--interior-mutability)
+2. [Ownership, Borrowing & Lifetimes](#section-2-ownership-borrowing-lifetimes)
+3. [Structs, Enums & Pattern Matching](#section-3-structs-enums-pattern-matching)
+4. [Smart Pointers & Interior Mutability](#section-4-smart-pointers-interior-mutability)
 5. [Error Handling](#section-5-error-handling)
-6. [Collections & Iterators](#section-6-collections--iterators)
-7. [Traits & Generics](#section-7-traits--generics)
-8. [Closures & Functional Patterns](#section-8-closures--functional-patterns)
-9. [Working with Files](#section-9-working-with-files)
-10. [Modules, Crates & Workspaces](#section-10-modules-crates--workspaces)
-11. [Testing, Linting & Formatting](#section-11-testing-linting--formatting)
-12. [Concurrency & Async Rust](#section-12-concurrency--async-rust)
-13. [Macros](#section-13-macros)
-14. [Unsafe Rust & FFI](#section-14-unsafe-rust--ffi)
-15. [Design Patterns in Rust](#section-15-design-patterns-in-rust)
-16. [Performance & Profiling](#section-16-performance--profiling)
-17. [Networking & Web](#section-17-networking--web)
-18. [Serde Deep Dive](#section-18-serde-deep-dive)
-19. [Capstone Project: logforge](#capstone-project-logforge)
-
----
+6. [Collections & Iterators](#section-6-collections-iterators)
+7. [Traits & Generics](#section-7-traits-generics)
+8. [Object-Oriented Programming in Rust](#section-8-object-oriented-programming-in-rust)
+9. [Closures & Functional Patterns](#section-9-closures-functional-patterns)
+10. [Working with Files](#section-10-working-with-files)
+11. [Command Line Arguments (CLI)](#section-11-command-line-arguments-cli)
+12. [Terminal User Interfaces (TUI)](#section-12-terminal-user-interfaces-tui)
+13. [Modules, Crates & Workspaces](#section-13-modules-crates-workspaces)
+14. [Building Reusable and Shared Libraries](#section-14-building-reusable-and-shared-libraries)
+15. [Testing, Linting & Formatting](#section-15-testing-linting-formatting)
+16. [Concurrency & Async Rust](#section-16-concurrency-async-rust)
+17. [Macros](#section-17-macros)
+18. [Unsafe Rust & FFI](#section-18-unsafe-rust-ffi)
+19. [Design Patterns in Rust](#section-19-design-patterns-in-rust)
+20. [Performance & Profiling](#section-20-performance-profiling)
+21. [Networking & Web](#section-21-networking-web)
+22. [Serde Deep Dive](#section-22-serde-deep-dive)
+23. [Capstone Project: logforge](#capstone-project-logforge)
 
 ## Section 1: Getting Started with Rust
 
@@ -409,6 +411,8 @@ fn main() {
 
 ---
 
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
 ## Section 2: Ownership, Borrowing & Lifetimes
 
 ### The Core Problem Rust Solves
@@ -690,6 +694,8 @@ fn main() {
 ```
 
 ---
+
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
 ## Section 3: Structs, Enums & Pattern Matching
 
@@ -1084,6 +1090,8 @@ fn main() {
 
 ---
 
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
 ## Section 4: Smart Pointers & Interior Mutability
 
 ### What Are Smart Pointers?
@@ -1414,6 +1422,8 @@ fn main() {
 
 ---
 
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
 ## Section 5: Error Handling
 
 ### Rust's Philosophy on Errors
@@ -1733,6 +1743,8 @@ Charlie,91.3,A";
 
 ---
 
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
 ## Section 6: Collections & Iterators
 
 ### The Standard Collections
@@ -1989,6 +2001,8 @@ fn main() {
 ```
 
 ---
+
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
 
 ## Section 7: Traits & Generics
 
@@ -2340,7 +2354,115 @@ fn main() {
 
 ---
 
-## Section 8: Closures & Functional Patterns
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 8: Object-Oriented Programming in Rust
+
+### Rust Is Not Class-Based — But It *Can* Do OOP-Style Design
+If you come from Java/C#/C++, it’s natural to ask: *where are the classes?* Rust does **not** have classes, inheritance, or method overriding in the traditional sense. Instead, Rust provides building blocks that let you express the *useful parts* of object-oriented design without the long-term downsides that inheritance-heavy designs can create.
+
+A practical mapping:
+
+- **Encapsulation**: modules + visibility (`pub`, `pub(crate)`) + private fields
+- **“Objects with methods”**: `struct` + `impl`
+- **Polymorphism**: traits via generics (**static dispatch**) or `dyn Trait` (**dynamic dispatch**)
+- **Code reuse**: composition + traits (instead of inheritance)
+
+### 8.1 “Classes” in Rust: `struct` + `impl`
+A Rust `struct` can expose methods and constructors (by convention) through an `impl` block.
+
+```rust
+pub struct User {
+    id: u64,
+    username: String,
+}
+
+impl User {
+    pub fn new(id: u64, username: impl Into<String>) -> Self {
+        Self { id, username: username.into() }
+    }
+
+    pub fn username(&self) -> &str {
+        &self.username
+    }
+}
+```
+
+### 8.2 Encapsulation: Private Fields + Public Methods
+Rust encourages keeping fields private and exposing intentful operations. This is less about ceremony and more about protecting invariants.
+
+```rust
+pub struct NonEmptyString(String);
+
+impl NonEmptyString {
+    pub fn new(s: String) -> Result<Self, &'static str> {
+        if s.is_empty() { Err("empty") } else { Ok(Self(s)) }
+    }
+
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+```
+
+### 8.3 Polymorphism: Static vs Dynamic Dispatch
+Rust gives you **two** ways to achieve polymorphism. Choosing correctly is a major “novice → pro” milestone.
+
+#### Static dispatch (generics)
+Generic code is monomorphized: the compiler generates specialized versions for each concrete type.
+
+```rust
+trait Render {
+    fn render(&self) -> String;
+}
+
+fn draw_all<T: Render>(items: &[T]) {
+    for it in items {
+        println!("{}", it.render());
+    }
+}
+```
+
+**Use when** you want maximum performance and you can keep the types uniform.
+
+#### Dynamic dispatch (trait objects)
+Trait objects let you store heterogeneous values behind a shared interface.
+
+```rust
+trait Render {
+    fn render(&self) -> String;
+}
+
+fn draw_dyn(items: &[Box<dyn Render>]) {
+    for it in items {
+        println!("{}", it.render());
+    }
+}
+```
+
+**Use when** you need plugin-like designs, heterogeneous collections, or runtime selection.
+
+### 8.4 Inheritance vs Composition
+Rust strongly favors **composition** (having a thing) over inheritance (being a thing). This fits Rust’s ownership model and avoids the “fragile base class” problem.
+
+### 8.5 Object Safety (Why Some Traits Can’t Be `dyn Trait`)
+Not every trait can become a trait object. This is called **object safety**. You’ll learn to recognize the common causes (methods returning `Self`, generic methods on the trait) and how to refactor when needed.
+
+### Mini-Project: Polymorphic Notification Pipeline
+Build a small notification system with two implementations:
+
+- `EmailNotifier`
+- `SlackNotifier`
+
+Requirements:
+- Define a `Notifier` trait with `notify(&self, msg: &str) -> anyhow::Result<()>`.
+- Implement it for both notifiers.
+- Write two versions of `send_broadcast`:
+  - Static dispatch: `send_broadcast<T: Notifier>(...)`
+  - Dynamic dispatch: `send_broadcast_dyn(Vec<Box<dyn Notifier>>, ...)`
+- Add tests that verify both implementations are called and errors are handled.
+
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 9: Closures & Functional Patterns
 
 ### What Are Closures?
 
@@ -2547,7 +2669,9 @@ fn main() {
 
 ---
 
-## Section 9: Working with Files
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 10: Working with Files
 
 ### File I/O in Rust: The Philosophy
 
@@ -2897,7 +3021,9 @@ fn main() -> io::Result<()> {
 ---
 
 
-## Section 10: Command Line Arguments (CLI)
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 11: Command Line Arguments (CLI)
 
 ### The Philosophy of CLI Design
 A professional command-line tool is more than just a script; it is a user interface. In the world of systems programming, the CLI is the primary way automation, cloud infrastructure, and other developers interact with your software. 
@@ -2960,7 +3086,9 @@ fn main() {
 
 ---
 
-## Section 11: Terminal User Interfaces (TUI)
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 12: Terminal User Interfaces (TUI)
 
 ### Moving Beyond Scrolling Text
 While a standard CLI prints text line-by-line, a **Terminal User Interface (TUI)** uses the terminal as a visual grid. Think of tools like `htop`, `vim`, or `lazygit`. These applications allow for layouts, colors, responsive design, and keyboard interactions.
@@ -2992,7 +3120,10 @@ A TUI application doesn't exit after printing. It runs in a loop, waiting for us
 - Ensure the program exits gracefully when the user presses 'q'.
 
 ---
-## Section 12: Modules, Crates & Workspaces
+
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 13: Modules, Crates & Workspaces
 
 ### The Module System: Organizing Code
 
@@ -3227,7 +3358,261 @@ pub fn std_dev(data: &[f64]) -> Option<f64> {
 
 ---
 
-## Section 13: Testing, Linting & Formatting
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 14: Building Reusable and Shared Libraries
+
+### Why Libraries Matter
+As your Rust projects grow, you will inevitably find yourself writing the same utility functions, data structures, or domain logic in multiple places. The answer in Rust — as in most ecosystems — is to extract that code into a **library crate** that can be shared across projects. But Rust's library story goes further than most: the same tooling that lets you share code internally also lets you publish to the global **crates.io** registry, making your work available to the entire Rust community.
+
+This section covers the full journey: from structuring a library crate, to sharing it inside a workspace, to publishing it to the world.
+
+### 0.1 Library Crates vs Binary Crates
+Every Rust crate is either a **library** (`lib.rs` is the root) or a **binary** (`main.rs` is the root), or both. The distinction matters:
+
+- A **binary crate** produces an executable. It has a `main()` function and is meant to be run.
+- A **library crate** produces a compiled artifact (`.rlib`) that other crates can depend on. It has no `main()`.
+
+A single `Cargo.toml` can declare both by having both `src/lib.rs` and `src/main.rs`. This is a common pattern for CLI tools that also expose a public API.
+
+```toml
+# Cargo.toml
+[package]
+name    = "string_utils"
+version = "0.1.0"
+edition = "2021"
+
+# No [[bin]] needed — src/lib.rs is auto-detected as the library root
+# src/main.rs would be auto-detected as a binary if present
+```
+
+### 0.2 Designing a Good Public API
+The surface area of your library — what you mark `pub` — is a contract with your users. Changing it is a breaking change. Rust gives you fine-grained visibility control:
+
+| Visibility | Meaning |
+|---|---|
+| (none) | Private to the current module |
+| `pub(self)` | Same as private |
+| `pub(super)` | Visible to the parent module |
+| `pub(crate)` | Visible anywhere in the same crate |
+| `pub` | Visible to everyone |
+
+#### Re-exports and the `prelude` Pattern
+Rather than forcing users to import deeply nested paths, you can re-export items at the crate root:
+
+```rust
+// src/lib.rs
+pub mod text;
+pub mod transform;
+
+// Re-export the most commonly used items at the top level
+pub use text::StringExt;
+pub use transform::Transformer;
+
+// Optional: a prelude module for glob imports
+pub mod prelude {
+    pub use crate::text::StringExt;
+    pub use crate::transform::Transformer;
+}
+```
+
+Users can then write `use string_utils::StringExt;` instead of `use string_utils::text::StringExt;`.
+
+### 0.3 Cargo Workspaces: Sharing a Library Across Projects
+A **Cargo workspace** is a directory containing multiple related crates that share a single `Cargo.lock` and a single `target/` directory. This is the standard way to manage a monorepo in Rust.
+
+```
+my_workspace/
+├── Cargo.toml          ← workspace manifest
+├── string_utils/       ← your shared library
+│   ├── Cargo.toml
+│   └── src/lib.rs
+├── app_one/            ← binary that uses the library
+│   ├── Cargo.toml
+│   └── src/main.rs
+└── app_two/            ← another binary
+    ├── Cargo.toml
+    └── src/main.rs
+```
+
+```toml
+# my_workspace/Cargo.toml  (workspace root)
+[workspace]
+members = [
+    "string_utils",
+    "app_one",
+    "app_two",
+]
+resolver = "2"
+```
+
+```toml
+# app_one/Cargo.toml
+[dependencies]
+string_utils = { path = "../string_utils" }
+```
+
+With this setup, `cargo build` at the workspace root builds everything, and all crates share the same compiled dependency artifacts — dramatically reducing build times.
+
+### 0.4 Path Dependencies vs Published Dependencies
+When developing locally, you reference a library with a **path dependency**:
+
+```toml
+string_utils = { path = "../string_utils" }
+```
+
+When you publish your library to crates.io, consumers will reference it by version:
+
+```toml
+string_utils = "0.3.1"
+```
+
+You can even combine both during development (path takes precedence locally):
+
+```toml
+string_utils = { version = "0.3", path = "../string_utils" }
+```
+
+### 0.5 Documentation: `///` Doc Comments and `cargo doc`
+Documentation is a first-class citizen in Rust. Doc comments use `///` for items and `//!` for modules/crates, and they support full Markdown.
+
+```rust
+//! # string_utils
+//! A collection of ergonomic string manipulation utilities.
+
+/// Capitalizes the first letter of a string slice.
+///
+/// # Examples
+/// ```
+/// use string_utils::capitalize;
+/// assert_eq!(capitalize("hello"), "Hello");
+/// ```
+///
+/// # Panics
+/// Does not panic.
+pub fn capitalize(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
+}
+```
+
+Run `cargo doc --open` to build and view your documentation in a browser. The code examples inside `///` doc comments are also **run as tests** by `cargo test` — these are called **doctests**.
+
+### 0.6 Feature Flags: Optional Functionality
+Feature flags let you make parts of your library optional, keeping the default dependency footprint small.
+
+```toml
+# string_utils/Cargo.toml
+[features]
+default  = []
+regex    = ["dep:regex"]
+serde    = ["dep:serde"]
+
+[dependencies]
+regex = { version = "1", optional = true }
+serde = { version = "1", optional = true, features = ["derive"] }
+```
+
+```rust
+// src/lib.rs
+#[cfg(feature = "regex")]
+pub mod pattern;
+
+#[cfg(feature = "serde")]
+mod serde_impl;
+```
+
+Users opt in:
+```toml
+string_utils = { version = "0.3", features = ["regex"] }
+```
+
+### 0.7 Semantic Versioning (SemVer) in Rust
+Cargo enforces SemVer. The rules are:
+
+- **Patch** (`0.1.0` → `0.1.1`): Bug fixes only. No API changes.
+- **Minor** (`0.1.0` → `0.2.0`): New public API added. Existing API unchanged.
+- **Major** (`0.1.0` → `1.0.0`): Breaking changes to the public API.
+
+> **Important**: For versions `0.x.y`, Cargo treats the *minor* version as the breaking-change indicator. So `0.1.0` → `0.2.0` is considered breaking.
+
+The `cargo semver-checks` tool can automatically detect breaking changes before you publish.
+
+### 0.8 Publishing to crates.io
+Before publishing, ensure your `Cargo.toml` has the required metadata:
+
+```toml
+[package]
+name        = "string_utils"
+version     = "0.1.0"
+edition     = "2021"
+description = "Ergonomic string manipulation utilities for Rust"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/yourname/string_utils"
+keywords    = ["string", "text", "utilities"]
+categories  = ["text-processing"]
+readme      = "README.md"
+```
+
+Then:
+```bash
+cargo login          # authenticate with your crates.io API token
+cargo publish --dry-run   # verify everything looks correct
+cargo publish        # publish!
+```
+
+Once published, a version is **permanent** — you can yank it (hide it from new projects) but never delete it.
+
+### 0.9 Integration Tests for Libraries
+Integration tests live in the `tests/` directory at the crate root. They test your library's **public API** exactly as an external user would.
+
+```
+string_utils/
+├── src/
+│   └── lib.rs
+└── tests/
+    └── integration_test.rs
+```
+
+```rust
+// tests/integration_test.rs
+use string_utils::capitalize;
+
+#[test]
+fn test_capitalize_basic() {
+    assert_eq!(capitalize("hello world"), "Hello world");
+}
+
+#[test]
+fn test_capitalize_empty() {
+    assert_eq!(capitalize(""), "");
+}
+```
+
+Run with `cargo test` — Cargo automatically discovers and runs all files in `tests/`.
+
+### Mini-Project: `string_utils` Library Crate
+**Goal**: Build a small, well-documented, and well-tested library crate and integrate it into a workspace.
+
+**Requirements**:
+1. Create a Cargo workspace with two members: `string_utils` (lib) and `cli_demo` (binary).
+2. Implement at least three public functions in `string_utils`:
+   - `capitalize(s: &str) -> String`
+   - `word_count(s: &str) -> usize`
+   - `truncate(s: &str, max_len: usize, ellipsis: bool) -> String`
+3. Write `///` doc comments with working doctests for each function.
+4. Add a `serde` feature flag that derives `Serialize`/`Deserialize` for a `TextStats` struct.
+5. Write integration tests in `tests/`.
+6. Use the library from `cli_demo` via a path dependency.
+7. Run `cargo doc --open` and verify the documentation renders correctly.
+8. Run `cargo test --workspace` and ensure all unit tests, integration tests, and doctests pass.
+
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 15: Testing, Linting & Formatting
 
 ### The Philosophy of Testing in Rust
 
@@ -3806,7 +4191,9 @@ mod tests {
 
 ---
 
-## Section 14: Concurrency & Async Rust
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 16: Concurrency & Async Rust
 
 ### Why Concurrency Is Hard (And How Rust Helps)
 
@@ -4062,7 +4449,9 @@ async fn main() {
 
 ---
 
-## Section 15: Macros
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 17: Macros
 
 ### What Are Macros and Why Do They Exist?
 
@@ -4236,7 +4625,9 @@ fn main() {
 
 ---
 
-## Section 16: Unsafe Rust & FFI
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 18: Unsafe Rust & FFI
 
 ### When and Why to Use Unsafe
 
@@ -4373,7 +4764,9 @@ fn main() {
 
 ---
 
-## Section 17: Design Patterns in Rust
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 19: Design Patterns in Rust
 
 ### Why Design Patterns Look Different in Rust
 
@@ -4627,7 +5020,9 @@ fn main() {
 
 ---
 
-## Section 18: Performance & Profiling
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 20: Performance & Profiling
 
 ### Rust's Performance Philosophy
 
@@ -4783,7 +5178,9 @@ fn main() {
 
 ---
 
-## Section 19: Networking & Web
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 21: Networking & Web
 
 ### TCP and UDP with std::net
 
@@ -5021,7 +5418,9 @@ async fn auth_middleware(
 
 ---
 
-## Section 20: Serde Deep Dive
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
+## Section 22: Serde Deep Dive
 
 ### What Is Serde?
 
@@ -5252,96 +5651,146 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ---
 
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
+
 ## Capstone Project: logforge
 
 ### Overview
 
-`logforge` is a distributed log aggregation and analysis engine — a production-grade system that you will build incrementally, applying every concept from this guide. It is inspired by real-world tools like Elasticsearch, Loki, and Splunk.
+`logforge` is a distributed log aggregation and analysis engine — a production-grade system that you will build incrementally, applying **every concept from this guide**. It is inspired by real-world tools like Elasticsearch, Loki, and Splunk.
+
+This capstone deliberately exercises the topics added throughout the roadmap:
+
+| Roadmap Section | Where it appears in logforge |
+|---|---|
+| Structs, Enums, Pattern Matching | `LogEntry`, `LogLevel`, `LogQuery` core types |
+| OOP in Rust (traits + polymorphism) | `LogStore` / `PipelineStage` trait objects; static vs dynamic dispatch |
+| Smart Pointers | `Arc<dyn LogStore>`, `Arc<Ingester>`, `RwLock`, `AtomicU64` |
+| Error Handling | `StoreError` with `thiserror`; `anyhow` in the CLI |
+| Collections & Iterators | Segment scanning, inverted index, iterator chains |
+| Traits & Generics | Generic pipeline builder; blanket impls |
+| Closures & Functional Patterns | Iterator adapters in query engine |
+| Working with Files | Atomic segment writes (temp + rename + fsync) |
+| **Command-Line Arguments** | **Full `clap` CLI: positional + keyword + subcommands** |
+| Modules, Crates & Workspaces | 6-crate workspace; shared `Cargo.lock` |
+| **Reusable Shared Libraries** | **`logforge-core` as a published-style lib with doctests + feature flags** |
+| Testing, Linting & Formatting | Unit, integration, async, and doc tests; `clippy`; `rustfmt` |
+| Concurrency & Async | `tokio` runtime; `mpsc`; `broadcast`; `RwLock` |
+| Macros | Custom `log_entry!` convenience macro |
+| Design Patterns | Builder pattern for `LogQuery`; Typestate for server startup |
+| Networking & Web | `axum` REST API + WebSocket live streaming |
+| Serde Deep Dive | Custom serializers; multi-format support |
+| **Terminal UI (TUI)** | **`logforge-tui`: live dashboard with Ratatui** |
 
 ### What logforge Does
 
-logforge ingests log entries from multiple sources (TCP, UDP, files, stdin), processes them through a configurable transformation pipeline, stores them in a segment-based storage engine with an inverted index, and exposes a query API via REST and WebSocket.
+logforge ingests log entries from multiple sources (TCP, UDP, files, stdin), processes them through a configurable transformation pipeline, stores them in a segment-based storage engine with an inverted index, and exposes a query API via REST and WebSocket. A TUI dashboard provides a live view of the system.
 
 ### Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        logforge                              │
-│                                                             │
-│  ┌──────────┐    ┌──────────────┐    ┌──────────────────┐  │
-│  │ Ingestion│───▶│  Transform   │───▶│  Storage Engine  │  │
-│  │  Layer   │    │  Pipeline    │    │  (Segments +     │  │
-│  │          │    │              │    │   Inverted Index) │  │
-│  │ TCP/UDP  │    │ Parse/Filter │    │                  │  │
-│  │ File     │    │ Enrich/Route │    │  Segment files   │  │
-│  │ Stdin    │    │              │    │  Index files     │  │
-│  └──────────┘    └──────────────┘    └────────┬─────────┘  │
-│                                               │             │
-│  ┌────────────────────────────────────────────▼──────────┐  │
-│  │                    Query Engine                        │  │
-│  │  Time range / Level / Source / Tag / Full-text search │  │
-│  └────────────────────────────────────────────┬──────────┘  │
-│                                               │             │
-│  ┌────────────────────────────────────────────▼──────────┐  │
-│  │                  REST API + WebSocket                  │  │
-│  │  GET /logs  POST /query  WS /stream                   │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                           logforge                               │
+│                                                                  │
+│  ┌──────────┐    ┌──────────────┐    ┌──────────────────────┐   │
+│  │Ingestion │───▶│  Transform   │───▶│   Storage Engine     │   │
+│  │  Layer   │    │  Pipeline    │    │  (Segments +         │   │
+│  │          │    │              │    │   Inverted Index)    │   │
+│  │ TCP/UDP  │    │ Parse/Filter │    │                      │   │
+│  │ File     │    │ Enrich/Route │    │  Atomic segment I/O  │   │
+│  │ Stdin    │    │              │    │                      │   │
+│  └──────────┘    └──────────────┘    └──────────┬───────────┘   │
+│                                                 │               │
+│  ┌──────────────────────────────────────────────▼───────────┐   │
+│  │                      Query Engine                         │   │
+│  │  Time range / Level / Source / Tag / Full-text search    │   │
+│  └──────────────────────────────────────────────┬───────────┘   │
+│                                                 │               │
+│  ┌──────────────────────────────────────────────▼───────────┐   │
+│  │              REST API + WebSocket  (axum)                 │   │
+│  │   GET /health   POST /logs   POST /query   WS /stream    │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │          TUI Dashboard  (ratatui + crossterm)             │   │
+│  │   Live ingestion rate · Error gauge · Recent log list    │   │
+│  └───────────────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Workspace Structure
 
 ```
 logforge/
-├── Cargo.toml              (workspace)
+├── Cargo.toml                  ← workspace root
 ├── crates/
-│   ├── logforge-core/      (shared types, traits)
-│   ├── logforge-ingest/    (ingestion layer)
-│   ├── logforge-pipeline/  (transformation pipeline)
-│   ├── logforge-storage/   (storage engine)
-│   ├── logforge-query/     (query engine)
-│   └── logforge-api/       (REST + WebSocket API)
-└── logforge-cli/           (CLI binary)
+│   ├── logforge-core/          ← shared library (types, traits, doctests, feature flags)
+│   ├── logforge-ingest/        ← ingestion layer
+│   ├── logforge-pipeline/      ← transformation pipeline
+│   ├── logforge-storage/       ← segment-based storage engine
+│   ├── logforge-query/         ← query engine
+│   └── logforge-api/           ← REST + WebSocket API (axum)
+├── logforge-cli/               ← CLI binary (clap: positional + keyword + subcommands)
+└── logforge-tui/               ← TUI dashboard (ratatui)
 ```
 
-### Milestone 1: Core Types and Traits
+---
+
+### Milestone 1: Core Types and Traits (OOP + Shared Library)
+
+`logforge-core` is the shared library that every other crate depends on. We design it as a *proper* published-style library: full doc comments, doctests, feature flags, and a `prelude` module.
 
 ```rust
 // crates/logforge-core/src/lib.rs
 
-use serde::{Deserialize, Serialize};
+//! # logforge-core
+//!
+//! Shared types, traits, and errors for the logforge ecosystem.
+//!
+//! ## Feature flags
+//! - `serde` (default): enables `Serialize`/`Deserialize` on all public types.
+//! - `metrics`: enables the `Metrics` struct for Prometheus-style counters.
+
+pub mod prelude {
+    pub use crate::{LogEntry, LogLevel, LogQuery, LogStore, PipelineStage, StoreError};
+}
+
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-/// A log entry — the fundamental unit of data in logforge
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+/// A single log entry — the fundamental unit of data in logforge.
+///
+/// # Examples
+/// ```
+/// use logforge_core::LogEntry;
+/// use logforge_core::LogLevel;
+///
+/// let entry = LogEntry::new(LogLevel::Info, "my-service", "server started")
+///     .with_field("port", "8080")
+///     .with_tag("startup");
+///
+/// assert_eq!(entry.level, LogLevel::Info);
+/// assert_eq!(entry.fields.get("port").map(|s| s.as_str()), Some("8080"));
+/// ```
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct LogEntry {
-    /// Unique identifier for this log entry
     pub id: u64,
-
-    /// Unix timestamp in milliseconds
     pub timestamp_ms: u64,
-
-    /// Log level (DEBUG, INFO, WARN, ERROR, FATAL)
     pub level: LogLevel,
-
-    /// The source that produced this log (hostname, service name, etc.)
     pub source: String,
-
-    /// The log message
     pub message: String,
-
-    /// Arbitrary key-value metadata
     pub fields: HashMap<String, String>,
-
-    /// Tags for categorization
     pub tags: Vec<String>,
 }
 
 impl LogEntry {
     pub fn new(level: LogLevel, source: &str, message: &str) -> Self {
         Self {
-            id: 0, // assigned by storage
+            id: 0,
             timestamp_ms: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
@@ -5365,12 +5814,22 @@ impl LogEntry {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "UPPERCASE")]
+/// Log severity level.
+///
+/// Levels are ordered: `Debug < Info < Warn < Error < Fatal`.
+///
+/// # Examples
+/// ```
+/// use logforge_core::LogLevel;
+/// assert!(LogLevel::Error > LogLevel::Info);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "UPPERCASE"))]
 pub enum LogLevel {
     Debug = 0,
-    Info = 1,
-    Warn = 2,
+    Info  = 1,
+    Warn  = 2,
     Error = 3,
     Fatal = 4,
 }
@@ -5396,13 +5855,28 @@ impl std::str::FromStr for LogLevel {
             "WARN"  => Ok(LogLevel::Warn),
             "ERROR" => Ok(LogLevel::Error),
             "FATAL" => Ok(LogLevel::Fatal),
-            _ => Err(format!("Unknown log level: {s}")),
+            other   => Err(format!("Unknown log level: {other}")),
         }
     }
 }
 
-/// A query for searching log entries
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+/// Builder-style query for searching log entries.
+///
+/// # Examples
+/// ```
+/// use logforge_core::{LogQuery, LogLevel};
+///
+/// let query = LogQuery::builder()
+///     .level(LogLevel::Error)
+///     .source("api-gateway")
+///     .contains("timeout")
+///     .limit(50)
+///     .build();
+///
+/// assert_eq!(query.limit, Some(50));
+/// ```
+#[derive(Debug, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct LogQuery {
     pub start_ms: Option<u64>,
     pub end_ms: Option<u64>,
@@ -5413,14 +5887,37 @@ pub struct LogQuery {
     pub limit: Option<usize>,
 }
 
-/// Trait for anything that can store and retrieve log entries
+impl LogQuery {
+    pub fn builder() -> LogQueryBuilder { LogQueryBuilder::default() }
+}
+
+/// Builder pattern for `LogQuery` — demonstrates the Builder design pattern.
+#[derive(Default)]
+pub struct LogQueryBuilder(LogQuery);
+
+impl LogQueryBuilder {
+    pub fn level(mut self, l: LogLevel) -> Self { self.0.levels.push(l); self }
+    pub fn source(mut self, s: &str) -> Self { self.0.sources.push(s.to_string()); self }
+    pub fn contains(mut self, s: &str) -> Self { self.0.message_contains = Some(s.to_string()); self }
+    pub fn limit(mut self, n: usize) -> Self { self.0.limit = Some(n); self }
+    pub fn build(self) -> LogQuery { self.0 }
+}
+
+/// **OOP in Rust**: `LogStore` is the primary *interface* (trait) for storage backends.
+///
+/// Any type implementing this trait can be used as a storage backend — this is
+/// Rust's equivalent of an abstract base class or interface. We use `dyn LogStore`
+/// (dynamic dispatch) so the API layer doesn't need to know the concrete type.
 pub trait LogStore: Send + Sync {
     fn append(&self, entry: LogEntry) -> Result<u64, StoreError>;
     fn query(&self, query: &LogQuery) -> Result<Vec<LogEntry>, StoreError>;
     fn count(&self) -> Result<u64, StoreError>;
 }
 
-/// Trait for pipeline stages that transform log entries
+/// **OOP in Rust**: `PipelineStage` is the interface for transformation steps.
+///
+/// Returning `None` from `process` drops the entry (filter semantics).
+/// This is the *Strategy* design pattern expressed as a trait object.
 pub trait PipelineStage: Send + Sync {
     fn name(&self) -> &str;
     fn process(&self, entry: LogEntry) -> Option<LogEntry>;
@@ -5430,14 +5927,14 @@ pub trait PipelineStage: Send + Sync {
 pub enum StoreError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
-
     #[error("Serialization error: {0}")]
     Serialization(String),
-
     #[error("Index error: {0}")]
     Index(String),
 }
 ```
+
+---
 
 ### Milestone 2: Ingestion Layer
 
@@ -5456,10 +5953,7 @@ pub struct Ingester {
 }
 
 impl Ingester {
-    pub fn new(
-        pipeline: Vec<Arc<dyn PipelineStage>>,
-        sender: mpsc::Sender<LogEntry>,
-    ) -> Self {
+    pub fn new(pipeline: Vec<Arc<dyn PipelineStage>>, sender: mpsc::Sender<LogEntry>) -> Self {
         Self { pipeline, sender }
     }
 
@@ -5468,7 +5962,7 @@ impl Ingester {
         for stage in &self.pipeline {
             match stage.process(current) {
                 Some(e) => current = e,
-                None => return, // entry was filtered out
+                None    => return,
             }
         }
         let _ = self.sender.send(current).await;
@@ -5476,24 +5970,15 @@ impl Ingester {
 
     pub async fn listen_tcp(self: Arc<Self>, addr: &str) -> std::io::Result<()> {
         let listener = TcpListener::bind(addr).await?;
-        println!("TCP ingestion listening on {addr}");
-
         loop {
             let (socket, peer) = listener.accept().await?;
             let ingester = Arc::clone(&self);
-
             tokio::spawn(async move {
-                let reader = BufReader::new(socket);
-                let mut lines = reader.lines();
-
+                let mut lines = BufReader::new(socket).lines();
                 while let Ok(Some(line)) = lines.next_line().await {
-                    if let Ok(entry) = serde_json::from_str::<LogEntry>(&line) {
-                        ingester.process_and_send(entry).await;
-                    } else {
-                        // Try to parse as plain text
-                        let entry = LogEntry::new(LogLevel::Info, &peer.to_string(), &line);
-                        ingester.process_and_send(entry).await;
-                    }
+                    let entry = serde_json::from_str::<LogEntry>(&line)
+                        .unwrap_or_else(|_| LogEntry::new(LogLevel::Info, &peer.to_string(), &line));
+                    ingester.process_and_send(entry).await;
                 }
             });
         }
@@ -5501,24 +5986,19 @@ impl Ingester {
 
     pub async fn listen_udp(self: Arc<Self>, addr: &str) -> std::io::Result<()> {
         let socket = UdpSocket::bind(addr).await?;
-        println!("UDP ingestion listening on {addr}");
-
         let mut buf = vec![0u8; 65536];
         loop {
             let (len, peer) = socket.recv_from(&mut buf).await?;
-            let data = std::str::from_utf8(&buf[..len]).unwrap_or("");
-
-            let entry = if let Ok(e) = serde_json::from_str::<LogEntry>(data) {
-                e
-            } else {
-                LogEntry::new(LogLevel::Info, &peer.to_string(), data)
-            };
-
+            let data  = std::str::from_utf8(&buf[..len]).unwrap_or("");
+            let entry = serde_json::from_str::<LogEntry>(data)
+                .unwrap_or_else(|_| LogEntry::new(LogLevel::Info, &peer.to_string(), data));
             self.process_and_send(entry).await;
         }
     }
 }
 ```
+
+---
 
 ### Milestone 3: Transformation Pipeline
 
@@ -5528,43 +6008,19 @@ impl Ingester {
 use logforge_core::{LogEntry, LogLevel, PipelineStage};
 use std::collections::HashMap;
 
-/// Filter entries by minimum log level
-pub struct LevelFilter {
-    min_level: LogLevel,
-}
-
-impl LevelFilter {
-    pub fn new(min_level: LogLevel) -> Self {
-        Self { min_level }
-    }
-}
-
+pub struct LevelFilter { min_level: LogLevel }
+impl LevelFilter { pub fn new(min_level: LogLevel) -> Self { Self { min_level } } }
 impl PipelineStage for LevelFilter {
     fn name(&self) -> &str { "level_filter" }
-
     fn process(&self, entry: LogEntry) -> Option<LogEntry> {
-        if entry.level >= self.min_level {
-            Some(entry)
-        } else {
-            None // filter out
-        }
+        (entry.level >= self.min_level).then_some(entry)
     }
 }
 
-/// Add fields to every log entry
-pub struct FieldEnricher {
-    fields: HashMap<String, String>,
-}
-
-impl FieldEnricher {
-    pub fn new(fields: HashMap<String, String>) -> Self {
-        Self { fields }
-    }
-}
-
+pub struct FieldEnricher { fields: HashMap<String, String> }
+impl FieldEnricher { pub fn new(fields: HashMap<String, String>) -> Self { Self { fields } } }
 impl PipelineStage for FieldEnricher {
     fn name(&self) -> &str { "field_enricher" }
-
     fn process(&self, mut entry: LogEntry) -> Option<LogEntry> {
         for (k, v) in &self.fields {
             entry.fields.entry(k.clone()).or_insert_with(|| v.clone());
@@ -5573,54 +6029,14 @@ impl PipelineStage for FieldEnricher {
     }
 }
 
-/// Redact sensitive information from log messages
-pub struct Redactor {
-    patterns: Vec<(String, String)>, // (pattern, replacement)
-}
-
-impl Redactor {
-    pub fn new() -> Self {
-        Self {
-            patterns: vec![
-                // Redact credit card numbers
-                (r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b".to_string(), 
-                 "[REDACTED-CC]".to_string()),
-                // Redact email addresses
-                (r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}".to_string(),
-                 "[REDACTED-EMAIL]".to_string()),
-            ],
-        }
-    }
-}
-
-impl PipelineStage for Redactor {
-    fn name(&self) -> &str { "redactor" }
-
-    fn process(&self, mut entry: LogEntry) -> Option<LogEntry> {
-        // In a real implementation, use the `regex` crate
-        // For simplicity, we just demonstrate the pattern
-        for (pattern, replacement) in &self.patterns {
-            if entry.message.contains(pattern.as_str()) {
-                entry.message = entry.message.replace(pattern.as_str(), replacement);
-            }
-        }
-        Some(entry)
-    }
-}
-
-/// Parse structured data from log messages
 pub struct JsonParser;
-
 impl PipelineStage for JsonParser {
     fn name(&self) -> &str { "json_parser" }
-
     fn process(&self, mut entry: LogEntry) -> Option<LogEntry> {
-        if let Ok(value) = serde_json::from_str::<serde_json::Value>(&entry.message) {
-            if let Some(obj) = value.as_object() {
-                for (k, v) in obj {
-                    if let Some(s) = v.as_str() {
-                        entry.fields.insert(k.clone(), s.to_string());
-                    }
+        if let Ok(serde_json::Value::Object(obj)) = serde_json::from_str(&entry.message) {
+            for (k, v) in obj {
+                if let Some(s) = v.as_str() {
+                    entry.fields.insert(k, s.to_string());
                 }
             }
         }
@@ -5629,7 +6045,9 @@ impl PipelineStage for JsonParser {
 }
 ```
 
-### Milestone 4: Storage Engine
+---
+
+### Milestone 4: Storage Engine (Files + Atomic Writes)
 
 ```rust
 // crates/logforge-storage/src/lib.rs
@@ -5641,7 +6059,7 @@ use std::io::{BufWriter, Write, BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock, atomic::{AtomicU64, Ordering}};
 
-const SEGMENT_SIZE: usize = 10_000; // entries per segment
+const SEGMENT_SIZE: usize = 10_000;
 
 struct Segment {
     id: u64,
@@ -5652,12 +6070,7 @@ struct Segment {
 
 impl Segment {
     fn new(id: u64, dir: &Path) -> Self {
-        Self {
-            id,
-            path: dir.join(format!("segment_{:08}.jsonl", id)),
-            entries: Vec::new(),
-            dirty: false,
-        }
+        Self { id, path: dir.join(format!("segment_{:08}.jsonl", id)), entries: Vec::new(), dirty: false }
     }
 
     fn load(path: PathBuf) -> Result<Self, StoreError> {
@@ -5666,70 +6079,47 @@ impl Segment {
             .and_then(|s| s.strip_prefix("segment_"))
             .and_then(|s| s.parse().ok())
             .unwrap_or(0);
-
         let mut entries = Vec::new();
         if path.exists() {
-            let file = File::open(&path)?;
-            let reader = BufReader::new(file);
-            for line in reader.lines() {
-                let line = line?;
-                if let Ok(entry) = serde_json::from_str(&line) {
-                    entries.push(entry);
-                }
+            for line in BufReader::new(File::open(&path)?).lines() {
+                if let Ok(e) = serde_json::from_str(&line?) { entries.push(e); }
             }
         }
-
         Ok(Self { id, path, entries, dirty: false })
     }
 
+    /// Atomic write: write to a temp file, fsync, then rename.
     fn flush(&mut self) -> Result<(), StoreError> {
         if !self.dirty { return Ok(()); }
-
-        let temp_path = self.path.with_extension("tmp");
+        let tmp = self.path.with_extension("tmp");
         {
-            let file = File::create(&temp_path)?;
-            let mut writer = BufWriter::new(&file);
-            for entry in &self.entries {
-                let line = serde_json::to_string(entry)
-                    .map_err(|e| StoreError::Serialization(e.to_string()))?;
-                writeln!(writer, "{line}")?;
+            let file = File::create(&tmp)?;
+            let mut w = BufWriter::new(&file);
+            for e in &self.entries {
+                writeln!(w, "{}", serde_json::to_string(e)
+                    .map_err(|e| StoreError::Serialization(e.to_string()))?)?;
             }
-            writer.flush()?;
+            w.flush()?;
             file.sync_all()?;
         }
-        fs::rename(&temp_path, &self.path)?;
+        fs::rename(&tmp, &self.path)?;
         self.dirty = false;
         Ok(())
     }
 }
 
-/// Inverted index for fast text search
-struct InvertedIndex {
-    // word -> set of entry IDs
-    index: HashMap<String, Vec<u64>>,
-}
-
+struct InvertedIndex { index: HashMap<String, Vec<u64>> }
 impl InvertedIndex {
-    fn new() -> Self {
-        Self { index: HashMap::new() }
-    }
-
-    fn index_entry(&mut self, entry: &LogEntry) {
-        for word in entry.message.split_whitespace() {
-            let word = word.to_lowercase();
-            let word = word.trim_matches(|c: char| !c.is_alphanumeric());
-            if !word.is_empty() {
-                self.index.entry(word.to_string())
-                    .or_default()
-                    .push(entry.id);
-            }
+    fn new() -> Self { Self { index: HashMap::new() } }
+    fn index_entry(&mut self, e: &LogEntry) {
+        for word in e.message.split_whitespace() {
+            let w = word.to_lowercase();
+            let w = w.trim_matches(|c: char| !c.is_alphanumeric());
+            if !w.is_empty() { self.index.entry(w.to_string()).or_default().push(e.id); }
         }
     }
-
     fn search(&self, term: &str) -> Vec<u64> {
-        self.index.get(&term.to_lowercase())
-            .cloned()
-            .unwrap_or_default()
+        self.index.get(&term.to_lowercase()).cloned().unwrap_or_default()
     }
 }
 
@@ -5743,38 +6133,18 @@ pub struct SegmentedStore {
 impl SegmentedStore {
     pub fn open(dir: &Path) -> Result<Arc<Self>, StoreError> {
         fs::create_dir_all(dir)?;
-
-        let mut segments = Vec::new();
-        let mut max_id = 0u64;
-
-        // Load existing segments
         let mut paths: Vec<_> = fs::read_dir(dir)?
-            .filter_map(|e| e.ok())
-            .map(|e| e.path())
+            .filter_map(|e| e.ok()).map(|e| e.path())
             .filter(|p| p.extension().map(|e| e == "jsonl").unwrap_or(false))
             .collect();
         paths.sort();
-
-        for path in paths {
-            let seg = Segment::load(path)?;
-            if let Some(last) = seg.entries.last() {
-                max_id = max_id.max(last.id);
-            }
-            segments.push(seg);
-        }
-
-        if segments.is_empty() {
-            segments.push(Segment::new(0, dir));
-        }
-
-        // Build index from loaded entries
+        let mut segments: Vec<Segment> = paths.into_iter()
+            .map(Segment::load).collect::<Result<_, _>>()?;
+        if segments.is_empty() { segments.push(Segment::new(0, dir)); }
+        let max_id = segments.iter().flat_map(|s| s.entries.iter())
+            .map(|e| e.id).max().unwrap_or(0);
         let mut index = InvertedIndex::new();
-        for seg in &segments {
-            for entry in &seg.entries {
-                index.index_entry(entry);
-            }
-        }
-
+        for seg in &segments { for e in &seg.entries { index.index_entry(e); } }
         Ok(Arc::new(Self {
             dir: dir.to_path_buf(),
             segments: RwLock::new(segments),
@@ -5784,10 +6154,7 @@ impl SegmentedStore {
     }
 
     pub fn flush(&self) -> Result<(), StoreError> {
-        let mut segments = self.segments.write().unwrap();
-        for seg in segments.iter_mut() {
-            seg.flush()?;
-        }
+        for seg in self.segments.write().unwrap().iter_mut() { seg.flush()?; }
         Ok(())
     }
 }
@@ -5796,78 +6163,37 @@ impl LogStore for SegmentedStore {
     fn append(&self, mut entry: LogEntry) -> Result<u64, StoreError> {
         let id = self.next_id.fetch_add(1, Ordering::SeqCst);
         entry.id = id;
-
-        // Update inverted index
         self.index.write().unwrap().index_entry(&entry);
-
-        // Append to current segment
-        let mut segments = self.segments.write().unwrap();
-        let last = segments.last_mut().unwrap();
+        let mut segs = self.segments.write().unwrap();
+        let last = segs.last_mut().unwrap();
         last.entries.push(entry);
         last.dirty = true;
-
-        // Rotate segment if full
         if last.entries.len() >= SEGMENT_SIZE {
             last.flush()?;
             let new_id = last.id + 1;
-            segments.push(Segment::new(new_id, &self.dir));
+            segs.push(Segment::new(new_id, &self.dir));
         }
-
         Ok(id)
     }
 
-    fn query(&self, query: &LogQuery) -> Result<Vec<LogEntry>, StoreError> {
-        let segments = self.segments.read().unwrap();
+    fn query(&self, q: &LogQuery) -> Result<Vec<LogEntry>, StoreError> {
+        let segs  = self.segments.read().unwrap();
         let index = self.index.read().unwrap();
-
-        // Get candidate IDs from full-text search
-        let text_candidates: Option<std::collections::HashSet<u64>> = 
-            query.message_contains.as_ref().map(|term| {
-                index.search(term).into_iter().collect()
-            });
-
+        let text_ids: Option<std::collections::HashSet<u64>> = q.message_contains.as_ref()
+            .map(|t| index.search(t).into_iter().collect());
         let mut results = Vec::new();
-
-        for seg in segments.iter() {
-            for entry in &seg.entries {
-                // Time range filter
-                if let Some(start) = query.start_ms {
-                    if entry.timestamp_ms < start { continue; }
-                }
-                if let Some(end) = query.end_ms {
-                    if entry.timestamp_ms > end { continue; }
-                }
-
-                // Level filter
-                if !query.levels.is_empty() && !query.levels.contains(&entry.level) {
-                    continue;
-                }
-
-                // Source filter
-                if !query.sources.is_empty() && !query.sources.contains(&entry.source) {
-                    continue;
-                }
-
-                // Tag filter
-                if !query.tags.is_empty() {
-                    let has_all_tags = query.tags.iter()
-                        .all(|t| entry.tags.contains(t));
-                    if !has_all_tags { continue; }
-                }
-
-                // Full-text filter
-                if let Some(ref candidates) = text_candidates {
-                    if !candidates.contains(&entry.id) { continue; }
-                }
-
-                results.push(entry.clone());
-
-                if let Some(limit) = query.limit {
-                    if results.len() >= limit { break; }
-                }
+        'outer: for seg in segs.iter() {
+            for e in &seg.entries {
+                if q.start_ms.map(|s| e.timestamp_ms < s).unwrap_or(false) { continue; }
+                if q.end_ms.map(|s| e.timestamp_ms > s).unwrap_or(false)   { continue; }
+                if !q.levels.is_empty()  && !q.levels.contains(&e.level)   { continue; }
+                if !q.sources.is_empty() && !q.sources.contains(&e.source) { continue; }
+                if !q.tags.is_empty() && !q.tags.iter().all(|t| e.tags.contains(t)) { continue; }
+                if let Some(ref ids) = text_ids { if !ids.contains(&e.id) { continue; } }
+                results.push(e.clone());
+                if q.limit.map(|l| results.len() >= l).unwrap_or(false) { break 'outer; }
             }
         }
-
         Ok(results)
     }
 
@@ -5876,6 +6202,8 @@ impl LogStore for SegmentedStore {
     }
 }
 ```
+
+---
 
 ### Milestone 5: REST API with WebSocket Streaming
 
@@ -5900,9 +6228,9 @@ pub struct AppState {
 pub fn create_router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/health", get(health_check))
-        .route("/logs", post(ingest_log))
-        .route("/query", post(query_logs))
-        .route("/count", get(count_logs))
+        .route("/logs",   post(ingest_log))
+        .route("/query",  post(query_logs))
+        .route("/count",  get(count_logs))
         .route("/stream", get(stream_logs))
         .with_state(state)
 }
@@ -5917,10 +6245,7 @@ async fn ingest_log(
 ) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, String)> {
     let id = state.store.append(entry.clone())
         .map_err(|e| (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-
-    // Broadcast to WebSocket subscribers
     let _ = state.broadcast.send(entry);
-
     Ok(Json(serde_json::json!({ "id": id })))
 }
 
@@ -5928,47 +6253,47 @@ async fn query_logs(
     State(state): State<Arc<AppState>>,
     Json(query): Json<LogQuery>,
 ) -> Result<Json<Vec<LogEntry>>, (axum::http::StatusCode, String)> {
-    let results = state.store.query(&query)
-        .map_err(|e| (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(Json(results))
+    state.store.query(&query)
+        .map(Json)
+        .map_err(|e| (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
 }
 
 async fn count_logs(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, String)> {
-    let count = state.store.count()
-        .map_err(|e| (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(Json(serde_json::json!({ "count": count })))
+    state.store.count()
+        .map(|c| Json(serde_json::json!({ "count": c })))
+        .map_err(|e| (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
 }
 
-async fn stream_logs(
-    ws: WebSocketUpgrade,
-    State(state): State<Arc<AppState>>,
-) -> Response {
-    ws.on_upgrade(|socket| handle_websocket(socket, state))
+async fn stream_logs(ws: WebSocketUpgrade, State(state): State<Arc<AppState>>) -> Response {
+    ws.on_upgrade(|socket| handle_ws(socket, state))
 }
 
-async fn handle_websocket(mut socket: WebSocket, state: Arc<AppState>) {
+async fn handle_ws(mut socket: WebSocket, state: Arc<AppState>) {
     let mut rx = state.broadcast.subscribe();
-
     loop {
         match rx.recv().await {
             Ok(entry) => {
                 let json = serde_json::to_string(&entry).unwrap_or_default();
-                if socket.send(Message::Text(json)).await.is_err() {
-                    break; // client disconnected
-                }
+                if socket.send(Message::Text(json)).await.is_err() { break; }
             }
-            Err(broadcast::error::RecvError::Lagged(n)) => {
-                eprintln!("WebSocket subscriber lagged by {n} messages");
-            }
-            Err(broadcast::error::RecvError::Closed) => break,
+            Err(broadcast::error::RecvError::Lagged(n)) => eprintln!("WS lagged {n}"),
+            Err(broadcast::error::RecvError::Closed)    => break,
         }
     }
 }
 ```
 
-### Milestone 6: CLI and Integration
+---
+
+### Milestone 6: CLI — Positional + Keyword + Subcommands
+
+This milestone directly applies the **Command-Line Arguments** section. The CLI uses:
+- **Subcommands** (`serve`, `query`, `send`, `tui`) — each is a logical command.
+- **Positional arguments** inside subcommands (e.g., `message` in `send`).
+- **Keyword arguments** with short and long forms (`--level`, `-l`).
+- **Default values** and **optional** arguments.
 
 ```rust
 // logforge-cli/src/main.rs
@@ -5978,8 +6303,12 @@ use logforge_core::{LogEntry, LogLevel, LogQuery};
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "logforge", about = "Distributed log aggregation engine")]
+#[command(name = "logforge", version, about = "Distributed log aggregation engine")]
 struct Cli {
+    /// Global verbosity flag (can be used with any subcommand)
+    #[arg(short, long, global = true)]
+    verbose: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -5988,121 +6317,108 @@ struct Cli {
 enum Commands {
     /// Start the logforge server
     Serve {
+        /// HTTP listen address  [positional-style default]
         #[arg(long, default_value = "0.0.0.0:3000")]
         http_addr: String,
 
+        /// TCP ingestion address
         #[arg(long, default_value = "0.0.0.0:5140")]
         tcp_addr: String,
 
+        /// Data directory (positional-style path keyword arg)
         #[arg(long, default_value = "./data")]
         data_dir: PathBuf,
     },
 
-    /// Query logs from a running server
+    /// Query logs — keyword args narrow the search, positional sets the server
     Query {
-        #[arg(long)]
+        /// Server URL  ← positional argument
         server: Option<String>,
 
-        #[arg(long)]
+        /// Filter by log level  ← keyword argument
+        #[arg(short, long)]
         level: Option<String>,
 
-        #[arg(long)]
+        /// Filter by source  ← keyword argument
+        #[arg(short, long)]
         source: Option<String>,
 
-        #[arg(long)]
+        /// Full-text search term  ← keyword argument
+        #[arg(short, long)]
         contains: Option<String>,
 
-        #[arg(long, default_value = "100")]
+        /// Maximum results  ← keyword argument with default
+        #[arg(short = 'n', long, default_value_t = 100)]
         limit: usize,
     },
 
-    /// Send a log entry to a running server
+    /// Send a log entry — message is positional, level/source are keyword args
     Send {
-        #[arg(long, default_value = "INFO")]
+        /// The log message  ← positional argument
+        message: String,
+
+        /// Log level  ← keyword argument
+        #[arg(short, long, default_value = "INFO")]
         level: String,
 
-        #[arg(long, default_value = "cli")]
+        /// Source name  ← keyword argument
+        #[arg(short, long, default_value = "cli")]
         source: String,
+    },
 
-        message: String,
+    /// Launch the TUI dashboard
+    Tui {
+        /// Server to connect to
+        #[arg(long, default_value = "http://localhost:3000")]
+        server: String,
     },
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
         Commands::Serve { http_addr, tcp_addr, data_dir } => {
-            println!("Starting logforge server...");
-            println!("HTTP: {http_addr}");
-            println!("TCP:  {tcp_addr}");
-            println!("Data: {}", data_dir.display());
-
-            // Initialize storage
+            if cli.verbose { println!("Starting server: http={http_addr} tcp={tcp_addr}"); }
             let store = logforge_storage::SegmentedStore::open(&data_dir)?;
-
-            // Initialize broadcast channel for WebSocket streaming
             let (tx, _) = tokio::sync::broadcast::channel(1024);
-
             let state = std::sync::Arc::new(logforge_api::AppState {
                 store: store.clone(),
-                broadcast: tx.clone(),
+                broadcast: tx,
             });
-
-            // Start HTTP server
-            let router = logforge_api::create_router(state);
+            let router   = logforge_api::create_router(state);
             let listener = tokio::net::TcpListener::bind(&http_addr).await?;
-
-            println!("logforge ready!");
             axum::serve(listener, router).await?;
         }
 
         Commands::Query { server, level, source, contains, limit } => {
             let server = server.unwrap_or_else(|| "http://localhost:3000".to_string());
-
-            let query = LogQuery {
-                levels: level.and_then(|l| l.parse::<LogLevel>().ok())
-                    .map(|l| vec![l])
-                    .unwrap_or_default(),
-                sources: source.map(|s| vec![s]).unwrap_or_default(),
-                message_contains: contains,
-                limit: Some(limit),
-                ..Default::default()
-            };
-
-            let client = reqwest::Client::new();
-            let entries: Vec<LogEntry> = client
+            let query  = LogQuery::builder()
+                .limit(limit)
+                .build();
+            let entries: Vec<LogEntry> = reqwest::Client::new()
                 .post(format!("{server}/query"))
                 .json(&query)
-                .send()
-                .await?
-                .json()
-                .await?;
-
-            for entry in &entries {
-                println!("[{}] [{}] {} — {}",
-                    entry.timestamp_ms, entry.level, entry.source, entry.message);
+                .send().await?.json().await?;
+            for e in &entries {
+                println!("[{}] [{}] {} — {}", e.timestamp_ms, e.level, e.source, e.message);
             }
             println!("({} results)", entries.len());
         }
 
-        Commands::Send { level, source, message } => {
-            let level = level.parse::<LogLevel>()
-                .unwrap_or(LogLevel::Info);
-
+        Commands::Send { message, level, source } => {
+            let level = level.parse::<LogLevel>().unwrap_or(LogLevel::Info);
             let entry = LogEntry::new(level, &source, &message);
-
-            let client = reqwest::Client::new();
-            let response: serde_json::Value = client
+            let resp: serde_json::Value = reqwest::Client::new()
                 .post("http://localhost:3000/logs")
                 .json(&entry)
-                .send()
-                .await?
-                .json()
-                .await?;
+                .send().await?.json().await?;
+            println!("Sent: id={}", resp["id"]);
+        }
 
-            println!("Sent: id={}", response["id"]);
+        Commands::Tui { server } => {
+            logforge_tui::run(&server).await?;
         }
     }
 
@@ -6110,7 +6426,163 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Milestone 7: Testing the Full System
+---
+
+### Milestone 7: TUI Dashboard (Ratatui)
+
+This milestone applies the **Terminal User Interfaces** section. The TUI polls the server every second and renders a live dashboard.
+
+```rust
+// logforge-tui/src/lib.rs
+
+use crossterm::{
+    event::{self, Event, KeyCode},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
+use logforge_core::{LogEntry, LogLevel, LogQuery};
+use ratatui::{
+    backend::CrosstermBackend,
+    layout::{Constraint, Direction, Layout},
+    style::{Color, Modifier, Style},
+    text::{Line, Span},
+    widgets::{Block, Borders, Gauge, List, ListItem, Paragraph},
+    Terminal,
+};
+use std::io;
+use std::time::{Duration, Instant};
+
+struct AppState {
+    server: String,
+    total_logs: u64,
+    error_pct: f64,
+    recent_logs: Vec<LogEntry>,
+    last_refresh: Instant,
+}
+
+impl AppState {
+    fn new(server: &str) -> Self {
+        Self {
+            server: server.to_string(),
+            total_logs: 0,
+            error_pct: 0.0,
+            recent_logs: Vec::new(),
+            last_refresh: Instant::now(),
+        }
+    }
+
+    async fn refresh(&mut self) {
+        let client = reqwest::Client::new();
+
+        // Fetch total count
+        if let Ok(resp) = client.get(format!("{}/count", self.server)).send().await {
+            if let Ok(v) = resp.json::<serde_json::Value>().await {
+                self.total_logs = v["count"].as_u64().unwrap_or(0);
+            }
+        }
+
+        // Fetch recent logs
+        let query = LogQuery::builder().limit(20).build();
+        if let Ok(resp) = client.post(format!("{}/query", self.server)).json(&query).send().await {
+            if let Ok(entries) = resp.json::<Vec<LogEntry>>().await {
+                let errors = entries.iter().filter(|e| e.level >= LogLevel::Error).count();
+                self.error_pct = if entries.is_empty() { 0.0 }
+                    else { errors as f64 / entries.len() as f64 * 100.0 };
+                self.recent_logs = entries;
+            }
+        }
+
+        self.last_refresh = Instant::now();
+    }
+}
+
+pub async fn run(server: &str) -> anyhow::Result<()> {
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen)?;
+    let backend  = CrosstermBackend::new(stdout);
+    let mut term = Terminal::new(backend)?;
+
+    let mut state = AppState::new(server);
+    state.refresh().await;
+
+    loop {
+        term.draw(|f| {
+            let area = f.area();
+
+            // ── Layout: header (3 lines) | gauges (5 lines) | log list (rest) ──
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Length(3),
+                    Constraint::Length(5),
+                    Constraint::Min(0),
+                ])
+                .split(area);
+
+            // ── Header ──
+            let header = Paragraph::new(format!(
+                " logforge dashboard  │  server: {}  │  total logs: {}",
+                state.server, state.total_logs
+            ))
+            .block(Block::default().borders(Borders::ALL).title(" logforge "));
+            f.render_widget(header, chunks[0]);
+
+            // ── Error rate gauge (color changes with severity) ──
+            let gauge_color = if state.error_pct < 5.0 { Color::Green }
+                else if state.error_pct < 20.0 { Color::Yellow }
+                else { Color::Red };
+
+            let gauge = Gauge::default()
+                .block(Block::default().borders(Borders::ALL).title(" Error Rate (last 20 entries) "))
+                .gauge_style(Style::default().fg(gauge_color).add_modifier(Modifier::BOLD))
+                .percent(state.error_pct as u16);
+            f.render_widget(gauge, chunks[1]);
+
+            // ── Recent log list ──
+            let items: Vec<ListItem> = state.recent_logs.iter().map(|e| {
+                let color = match e.level {
+                    LogLevel::Debug => Color::DarkGray,
+                    LogLevel::Info  => Color::White,
+                    LogLevel::Warn  => Color::Yellow,
+                    LogLevel::Error => Color::Red,
+                    LogLevel::Fatal => Color::Magenta,
+                };
+                let line = Line::from(vec![
+                    Span::styled(format!("[{}] ", e.level), Style::default().fg(color).add_modifier(Modifier::BOLD)),
+                    Span::raw(format!("{} — {}", e.source, e.message)),
+                ]);
+                ListItem::new(line)
+            }).collect();
+
+            let list = List::new(items)
+                .block(Block::default().borders(Borders::ALL).title(" Recent Logs (press q to quit) "));
+            f.render_widget(list, chunks[2]);
+        })?;
+
+        // Poll for events with a 1-second timeout
+        if event::poll(Duration::from_secs(1))? {
+            if let Event::Key(key) = event::read()? {
+                if key.code == KeyCode::Char('q') { break; }
+            }
+        }
+
+        // Refresh data every second
+        if state.last_refresh.elapsed() >= Duration::from_secs(1) {
+            state.refresh().await;
+        }
+    }
+
+    // ── Restore terminal ──
+    disable_raw_mode()?;
+    execute!(term.backend_mut(), LeaveAlternateScreen)?;
+    Ok(())
+}
+```
+
+---
+
+### Milestone 8: Testing the Full System
 
 ```rust
 // tests/integration_test.rs
@@ -6119,7 +6591,7 @@ use logforge_core::{LogEntry, LogLevel, LogQuery, LogStore};
 use logforge_storage::SegmentedStore;
 use tempfile::TempDir;
 
-fn make_store() -> (SegmentedStore, TempDir) {
+fn make_store() -> (std::sync::Arc<SegmentedStore>, TempDir) {
     let dir = TempDir::new().unwrap();
     let store = SegmentedStore::open(dir.path()).unwrap();
     (store, dir)
@@ -6128,11 +6600,8 @@ fn make_store() -> (SegmentedStore, TempDir) {
 #[test]
 fn test_append_and_query() {
     let (store, _dir) = make_store();
-
-    let entry = LogEntry::new(LogLevel::Info, "test", "hello world");
-    let id = store.append(entry).unwrap();
+    let id = store.append(LogEntry::new(LogLevel::Info, "test", "hello world")).unwrap();
     assert!(id > 0);
-
     let results = store.query(&LogQuery::default()).unwrap();
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].message, "hello world");
@@ -6141,36 +6610,22 @@ fn test_append_and_query() {
 #[test]
 fn test_level_filter() {
     let (store, _dir) = make_store();
-
-    store.append(LogEntry::new(LogLevel::Debug, "test", "debug msg")).unwrap();
-    store.append(LogEntry::new(LogLevel::Info, "test", "info msg")).unwrap();
-    store.append(LogEntry::new(LogLevel::Error, "test", "error msg")).unwrap();
-
-    let query = LogQuery {
-        levels: vec![LogLevel::Error],
-        ..Default::default()
-    };
-
-    let results = store.query(&query).unwrap();
-    assert_eq!(results.len(), 1);
-    assert_eq!(results[0].level, LogLevel::Error);
+    store.append(LogEntry::new(LogLevel::Debug, "t", "debug")).unwrap();
+    store.append(LogEntry::new(LogLevel::Error, "t", "error")).unwrap();
+    let q = LogQuery::builder().level(LogLevel::Error).build();
+    let r = store.query(&q).unwrap();
+    assert_eq!(r.len(), 1);
+    assert_eq!(r[0].level, LogLevel::Error);
 }
 
 #[test]
 fn test_full_text_search() {
     let (store, _dir) = make_store();
-
-    store.append(LogEntry::new(LogLevel::Info, "app", "user logged in successfully")).unwrap();
-    store.append(LogEntry::new(LogLevel::Error, "app", "database connection failed")).unwrap();
+    store.append(LogEntry::new(LogLevel::Info, "app", "user logged in")).unwrap();
+    store.append(LogEntry::new(LogLevel::Error, "app", "database failed")).unwrap();
     store.append(LogEntry::new(LogLevel::Info, "app", "user logged out")).unwrap();
-
-    let query = LogQuery {
-        message_contains: Some("logged".to_string()),
-        ..Default::default()
-    };
-
-    let results = store.query(&query).unwrap();
-    assert_eq!(results.len(), 2);
+    let q = LogQuery::builder().contains("logged").build();
+    assert_eq!(store.query(&q).unwrap().len(), 2);
 }
 
 #[tokio::test]
@@ -6180,44 +6635,34 @@ async fn test_api_ingest_and_query() {
 
     let (store, _dir) = make_store();
     let (tx, _) = tokio::sync::broadcast::channel(16);
-
     let state = std::sync::Arc::new(logforge_api::AppState {
-        store: std::sync::Arc::new(store),
+        store: store as std::sync::Arc<dyn logforge_core::LogStore>,
         broadcast: tx,
     });
+    let server = TestServer::new(logforge_api::create_router(state)).unwrap();
 
-    let app = logforge_api::create_router(state);
-    let server = TestServer::new(app).unwrap();
-
-    // Ingest a log entry
     let entry = LogEntry::new(LogLevel::Info, "test", "test message");
-    let response = server.post("/logs").json(&entry).await;
-    assert_eq!(response.status_code(), StatusCode::OK);
+    assert_eq!(server.post("/logs").json(&entry).await.status_code(), StatusCode::OK);
 
-    // Query it back
-    let query = LogQuery::default();
-    let response = server.post("/query").json(&query).await;
-    assert_eq!(response.status_code(), StatusCode::OK);
-
-    let entries: Vec<LogEntry> = response.json();
+    let entries: Vec<LogEntry> = server.post("/query").json(&LogQuery::default()).await.json();
     assert_eq!(entries.len(), 1);
 }
 ```
 
+---
+
 ### Stretch Goals
 
-Once you have completed the 7 milestones, challenge yourself with these extensions:
-
-1. **Compression**: Compress segment files using `zstd` or `lz4` to reduce disk usage
-2. **Distributed mode**: Use `raft-rs` to implement consensus across multiple nodes
-3. **S3 archival**: Archive old segments to S3 using the `aws-sdk-s3` crate
-4. **WASM plugins**: Allow pipeline stages to be written in any language and compiled to WASM
-5. **Metrics**: Expose Prometheus metrics using `prometheus` crate
-6. **TLS**: Add TLS support to the HTTP and TCP servers using `rustls`
-7. **Authentication**: Add JWT-based authentication to the API
-8. **Alerting**: Send alerts when error rates exceed thresholds
-9. **Dashboard**: Build a simple web dashboard using `axum` and HTMX
-10. **Benchmarking**: Write comprehensive benchmarks and optimize the hot paths
+1. **Compression**: Compress segment files using `zstd` or `lz4`
+2. **Distributed mode**: Consensus across nodes with `raft-rs`
+3. **S3 archival**: Archive old segments with `aws-sdk-s3`
+4. **WASM plugins**: Pipeline stages compiled to WASM
+5. **Metrics**: Prometheus metrics via the `prometheus` crate
+6. **TLS**: Add TLS to HTTP and TCP with `rustls`
+7. **Authentication**: JWT-based auth on the API
+8. **Alerting**: Notify when error rates exceed thresholds
+9. **Benchmarking**: `criterion` benchmarks on the hot paths
+10. **`logforge-core` on crates.io**: Polish the shared library and publish it
 
 ---
 
@@ -6231,6 +6676,7 @@ Once you have completed the 7 milestones, challenge yourself with these extensio
 | Serialization | `serde` + `serde_json` | JSON and other formats |
 | Error handling | `anyhow` + `thiserror` | Application and library errors |
 | CLI | `clap` | Command-line argument parsing |
+| TUI | `ratatui` + `crossterm` | Terminal user interfaces |
 | Logging | `tracing` | Structured, async-aware logging |
 | Testing | `mockall` + `proptest` | Mocking and property testing |
 | Benchmarking | `criterion` | Statistical benchmarking |
@@ -6246,3 +6692,5 @@ Once you have completed the 7 milestones, challenge yourself with these extensio
 ---
 
 *This guide is a living document. As Rust evolves, so should your understanding. The best way to learn is to build — take the concepts from each section and apply them to problems you care about. The Rust community is welcoming and the documentation is excellent. Happy hacking!*
+
+[Back to top](#the-rust-developer-roadmap-novice-to-pro)
