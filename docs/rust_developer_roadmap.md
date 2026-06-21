@@ -1,3 +1,11 @@
+---
+type: Learning Roadmap
+title: The Rust Developer Roadmap: Novice to Pro
+description: A comprehensive, prose-first guide to mastering Rust — written for developers who want to truly understand the language, not just copy-paste code.
+tags: [rust, systems-programming, learning, roadmap, ownership, concurrency, async]
+timestamp: 2026-06-21T00:00:00Z
+---
+
 # The Rust Developer Roadmap: Novice to Pro
 
 > **A comprehensive, prose-first guide to mastering Rust — written for developers who want to truly understand the language, not just copy-paste code.**
@@ -8290,5 +8298,23 @@ async fn test_api_ingest_and_query() {
 ---
 
 *This guide is a living document. As Rust evolves, so should your understanding. The best way to learn is to build — take the concepts from each section and apply them to problems you care about. The Rust community is welcoming and the documentation is excellent. Happy hacking!*
+
+# Citations
+
+[1] [The Rust Programming Language (The Book)](https://doc.rust-lang.org/book/)
+[2] [Rust Reference](https://doc.rust-lang.org/reference/)
+[3] [Rust Standard Library Documentation](https://doc.rust-lang.org/std/)
+[4] [Rustonomicon — The Dark Arts of Unsafe Rust](https://doc.rust-lang.org/nomicon/)
+[5] [Async Book — Asynchronous Programming in Rust](https://rust-lang.github.io/async-book/)
+[6] [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+[7] [crates.io — The Rust Package Registry](https://crates.io/)
+[8] [Cargo Book](https://doc.rust-lang.org/cargo/)
+[9] [Rustup Documentation](https://rust-lang.github.io/rustup/)
+[10] [Ratatui — Terminal UI Framework](https://ratatui.rs/)
+[11] [Tokio — Async Runtime](https://tokio.rs/)
+[12] [Axum — Web Framework](https://github.com/tokio-rs/axum)
+[13] [Serde — Serialization Framework](https://serde.rs/)
+[14] [Clap — Command Line Argument Parser](https://docs.rs/clap/)
+[15] [criterion — Benchmarking Library](https://bheisler.github.io/criterion.rs/book/)
 
 [Back to top](#the-rust-developer-roadmap-novice-to-pro)
