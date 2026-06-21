@@ -1,7 +1,7 @@
 ---
 type: Learning Roadmap
-title: The Rust Developer Roadmap: Novice to Pro
-description: A comprehensive, prose-first guide to mastering Rust — written for developers who want to truly understand the language, not just copy-paste code.
+title: "The Rust Developer Roadmap: Novice to Pro"
+description: "A comprehensive, prose-first guide to mastering Rust — written for developers who want to truly understand the language, not just copy-paste code."
 tags: [rust, systems-programming, learning, roadmap, ownership, concurrency, async]
 timestamp: 2026-06-21T00:00:00Z
 ---
