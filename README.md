@@ -129,3 +129,67 @@ cargo clippy --all-targets --all-features
 cargo build
 cargo test
 ```
+
+---
+
+## Pixi: reproducible environments for Rust projects
+
+[Pixi](https://pixi.sh) is a fast, cross-platform package manager built on the conda-forge ecosystem. It pairs well with Rust because it solves the problems Cargo intentionally does not: pinning native system dependencies (OpenSSL, zlib, pkg-config), managing the Rust toolchain version per project, and providing a single task runner that wraps `cargo` commands in a reproducible shell environment.
+
+### Why pixi + Rust
+
+| Problem | Cargo alone | Pixi + Cargo |
+|---|---|---|
+| Pin Rust toolchain version per project | `rust-toolchain.toml` | `pixi.toml` `[dependencies]` |
+| Native deps (OpenSSL, sqlite, etc.) | System package manager | `pixi.toml` — same on every OS |
+| Reproducible dev environment | Partial | Full lock file (`pixi.lock`) |
+| Task runner | `cargo` subcommands only | `pixi run <task>` wraps anything |
+| Cross-platform scripting | Limited | Conda-forge packages available everywhere |
+
+### Installing pixi
+
+```bash
+# macOS / Linux
+curl -fsSL https://pixi.sh/install.sh | sh
+
+# Windows (PowerShell)
+iwr -useb https://pixi.sh/install.ps1 | iex
+
+# Verify
+pixi --version
+```
+
+### Sample pixi.toml for a Rust project
+
+```toml
+[workspace]
+name = "my-rust-project"
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
+
+[dependencies]
+rust = ">=1.87"          # pins the Rust toolchain from conda-forge
+openssl = ">=3.3"        # native dep — no brew/apt needed
+pkg-config = ">=0.29"
+
+[tasks]
+build   = "cargo build"
+release = "cargo build --release"
+test    = "cargo test"
+fmt     = "cargo fmt"
+lint    = "cargo clippy --all-targets --all-features"
+check   = "cargo check"
+ci      = { depends-on = ["fmt", "lint", "test"] }
+```
+
+### Common pixi commands
+
+```bash
+pixi install          # install all deps and create the lock file
+pixi run build        # cargo build inside the pixi environment
+pixi run test         # cargo test inside the pixi environment
+pixi run ci           # run the full local CI chain
+pixi shell            # drop into a shell with all deps on PATH
+```
+
+Cargo continues to manage Rust dependencies (`Cargo.toml` / `Cargo.lock`) exactly as before. Pixi sits one level above, managing the environment those Cargo commands run in.
